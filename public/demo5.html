@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>삼성흉부외과 — 모션 v5 (서가 · 화면이 열린다)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0070BC; --green:#04A33F;
+  --ink:#0e1216; --ink60:#5a636c; --ink40:#98a1aa;
+  --paper:#fff; --mist:#f4f7f9; --line:#e7ebef;
+  --ease:cubic-bezier(.36,0,0,1); --dur:.5s;
+  --gut:clamp(18px,4.2vw,72px);
+  --hh:64px; /* 헤더 높이 */
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+body{background:var(--paper);color:var(--ink);font-family:"Noto Sans KR",-apple-system,sans-serif;
+  font-size:15px;font-weight:400;line-height:1.75;letter-spacing:-.01em;overflow-x:hidden}
+body.lock{overflow:hidden}
+h1,h2,h3,h4,strong{font-weight:400}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+.shell{max-width:1640px;margin-inline:auto;padding-inline:var(--gut)}
+.label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink40)}
+.display{font-family:"Noto Serif KR",Georgia,serif;font-weight:300;line-height:1.18;letter-spacing:-.03em}
+.mask{display:block;overflow:hidden}
+.mask>span{display:block;transform:translateY(106%);transition:transform 1.15s var(--ease)}
+.mask.go>span{transform:none}
+.d1{transition-delay:.06s}.d2{transition-delay:.2s}.d3{transition-delay:.34s}.d4{transition-delay:.48s}.d5{transition-delay:.62s}
+
+/* ── HEADER ── */
+header{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(255,255,255,.84);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.hbar{display:flex;align-items:center;justify-content:space-between;height:var(--hh);gap:18px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:28px;height:28px;flex:none}
+.brand .nm b{display:block;font-weight:500;font-size:15px;letter-spacing:-.02em}
+.brand .nm i{font-style:normal;font-size:9.5px;letter-spacing:.18em;color:var(--ink40)}
+.hnav{display:flex;gap:24px;font-size:13.5px;color:var(--ink60)}
+.hnav a{position:relative;padding-block:6px}
+.hnav a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--blue);transition:width var(--dur) var(--ease)}
+.hnav a:hover::after{width:100%}
+.btn-tt{display:inline-flex;align-items:center;gap:7px;background:var(--green);color:#fff;
+  padding:8px 15px;border-radius:999px;font-size:12.5px;transition:transform var(--dur) var(--ease)}
+.btn-tt:hover{transform:translateY(-2px)}
+.btn-tt i{width:6px;height:6px;border-radius:50%;background:#fff;display:block}
+
+/* ═══════ 첫 화면 = 카피(좌) + 서가(우). 스크롤 유도 없음 ═══════ */
+.hero{height:100svh;min-height:580px;padding-top:var(--hh);
+  background:linear-gradient(160deg,#fff 0%,var(--mist) 100%)}
+.hero .shell{height:100%;display:grid;grid-template-columns:minmax(280px,.82fr) 1.18fr;
+  gap:clamp(24px,4vw,72px);align-items:center;padding-block:clamp(18px,3.4vh,44px)}
+.hcopy h1{font-size:clamp(30px,min(5.4vw,8vh),80px);margin:.2em 0 .42em}
+.hcopy h1 .hl{color:var(--blue)}
+.hcopy .sub{color:var(--ink60);font-size:clamp(13.5px,1.2vw,16.5px);max-width:32ch}
+.cta{display:flex;gap:10px;margin-top:clamp(18px,2.6vh,32px);flex-wrap:wrap}
+.cta a{display:inline-flex;align-items:center;gap:9px;padding:13px 22px;font-size:13.5px;
+  border:1px solid var(--ink);transition:all var(--dur) var(--ease)}
+.cta a.primary{background:var(--ink);color:#fff}
+.cta a.primary:hover{background:var(--blue);border-color:var(--blue)}
+.cta a.ghost:hover{background:var(--ink);color:#fff}
+.hstat{display:flex;gap:clamp(16px,2.4vw,38px);margin-top:clamp(20px,3.2vh,42px);flex-wrap:wrap}
+.hstat div{display:flex;flex-direction:column}
+.hstat b{font-weight:400;font-size:clamp(16px,1.8vw,24px);font-family:"Noto Serif KR",serif}
+.hstat span{font-size:10px;letter-spacing:.15em;color:var(--ink40);text-transform:uppercase}
+
+/* ── 서가 : 책이 크고, 절대 안 잘림 ── */
+.shelfbox{height:100%;min-height:0;display:flex;flex-direction:column;justify-content:center}
+.shelf-lead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:14px}
+.shelf-lead h2{font-size:clamp(13px,1.3vw,17px);color:var(--ink60)}
+.shelf-lead h2 em{font-style:normal;color:var(--ink)}
+.shelf{display:flex;gap:clamp(6px,.8vw,12px);align-items:stretch;
+  height:clamp(240px,min(58vh,520px),520px)}
+.book{position:relative;flex:1 1 0;min-width:0;cursor:pointer;overflow:hidden;color:#fff;
+  background:linear-gradient(172deg,#16283a,#0c1824);border-radius:2px 5px 5px 2px;
+  box-shadow:inset -8px 0 13px -10px rgba(0,0,0,.95), inset 3px 0 0 rgba(255,255,255,.12),
+             0 16px 28px -18px rgba(10,20,30,.55);
+  transition:transform .6s var(--ease),box-shadow .6s var(--ease),flex-grow .7s var(--ease)}
+.book:nth-child(2){background:linear-gradient(172deg,#0f3a2a,#082217)}
+.book:nth-child(3){background:linear-gradient(172deg,#1d3550,#0f1d2c)}
+.book:nth-child(4){background:linear-gradient(172deg,#2b2436,#171222)}
+.book:nth-child(5){background:linear-gradient(172deg,#0d3140,#081f29)}
+.book:hover{transform:translateY(-14px);flex-grow:1.25;box-shadow:0 26px 40px -22px rgba(10,20,30,.6)}
+.spine{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:space-between;padding:18px 6px 16px}
+.spine .yr{font-size:10px;letter-spacing:.16em;opacity:.62;flex:none}
+.spine .tt{writing-mode:vertical-rl;font-size:clamp(12px,1.05vw,15px);letter-spacing:.13em;
+  font-family:"Noto Serif KR",serif;opacity:.95;
+  /* 잘림 방지: 넘치면 줄어듦 */
+  max-height:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine .no{font-size:9.5px;letter-spacing:.14em;opacity:.45;flex:none}
+.spine::after{content:"";position:absolute;left:7px;right:7px;top:38px;bottom:38px;
+  border-block:1px solid rgba(255,255,255,.15);pointer-events:none}
+.shelf-base{height:11px;background:linear-gradient(180deg,#e3e9ee,#ccd5dd);border-radius:0 0 3px 3px;
+  box-shadow:0 12px 20px -13px rgba(20,30,40,.45)}
+
+/* ═══════ 책을 누르면 : 그 자리에서 화면 전체로 열린다 (FLIP) ═══════ */
+.viewer{position:fixed;z-index:120;background:#0a1017;overflow:hidden;border-radius:3px;
+  opacity:0;pointer-events:none;display:flex;flex-direction:column;
+  box-shadow:0 50px 90px -40px rgba(0,0,0,.7)}
+.viewer.live{opacity:1;pointer-events:auto}
+.viewer.anim{transition:top .78s var(--ease),left .78s var(--ease),width .78s var(--ease),
+  height .78s var(--ease),border-radius .78s var(--ease)}
+.viewer .vtop{display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:clamp(14px,2vw,26px) clamp(16px,2.4vw,34px);color:#fff;flex:none}
+.viewer .vtop .label{color:rgba(255,255,255,.5)}
+.vclose{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(255,255,255,.32);
+  color:#fff;padding:9px 15px;border-radius:999px;font-size:12.5px;cursor:pointer;font-family:inherit;
+  transition:background var(--dur) var(--ease)}
+.vclose:hover{background:rgba(255,255,255,.14)}
+.viewer .vbody{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
+  padding:0 clamp(12px,2.4vw,34px)}
+.viewer .vbody img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;
+  opacity:0;transform:scale(.985);transition:opacity .5s var(--ease) .34s,transform .8s var(--ease) .34s}
+.viewer.live .vbody img{opacity:1;transform:none}
+.viewer .vfoot{flex:none;padding:clamp(14px,2vw,26px) clamp(16px,2.4vw,34px);
+  border-top:1px solid rgba(255,255,255,.13);color:#fff;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;
+  opacity:0;transform:translateY(14px);transition:opacity .5s var(--ease) .44s,transform .6s var(--ease) .44s}
+.viewer.live .vfoot{opacity:1;transform:none}
+.viewer .vfoot b{display:block;font-weight:400;font-family:"Noto Serif KR",serif;
+  font-size:clamp(16px,2vw,28px);margin-bottom:4px}
+.viewer .vfoot span{font-size:13px;color:rgba(255,255,255,.62)}
+.vnav{display:flex;gap:8px;flex:none}
+.vnav button{width:42px;height:42px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;
+  cursor:pointer;font-size:16px;transition:background var(--dur) var(--ease)}
+.vnav button:hover{background:rgba(255,255,255,.14)}
+.scrim{position:fixed;inset:0;z-index:110;background:rgba(8,12,16,.55);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .6s var(--ease)}
+.scrim.live{opacity:1;pointer-events:auto}
+
+/* ── 이후 섹션 ── */
+.marq{border-block:1px solid var(--line);padding:20px 0;overflow:hidden;background:#fff}
+.marq-track{display:flex;width:max-content;animation:mv 48s linear infinite}
+.marq:hover .marq-track{animation-play-state:paused}
+@keyframes mv{to{transform:translateX(-50%)}}
+.marq span{display:inline-flex;align-items:center;gap:15px;padding-inline:30px;white-space:nowrap;font-size:clamp(13px,1.3vw,18px);color:var(--ink60)}
+.marq span em{font-style:normal;color:var(--ink)}
+.marq span::after{content:"";width:13px;height:1px;background:var(--blue);opacity:.5}
+.sec{padding:clamp(70px,11vh,160px) 0}
+.sec-head{max-width:56ch;margin-bottom:clamp(34px,6vh,74px)}
+.sec-head h2{font-size:clamp(23px,3vw,44px);margin:.3em 0 .45em}
+.sec-head p{color:var(--ink60);font-size:14px}
+.card{position:sticky;background:#fff;border:1px solid var(--line);display:grid;grid-template-columns:1.02fr .98fr;
+  min-height:clamp(330px,52vh,490px);overflow:hidden}
+.card+.card{margin-top:20px}
+.card .txt{padding:clamp(24px,3.4vw,54px);display:flex;flex-direction:column;justify-content:space-between}
+.card .no{font-size:11px;letter-spacing:.2em;color:var(--blue)}
+.card h3{font-size:clamp(18px,2.1vw,31px);margin:.35em 0 .45em}
+.card p{color:var(--ink60);font-size:14px;max-width:38ch}
+.card .meta{display:flex;gap:20px;font-size:12px;color:var(--ink40);border-top:1px solid var(--line);padding-top:14px;margin-top:22px}
+.card figure{overflow:hidden;background:var(--mist)}
+.card figure img{width:100%;height:100%;object-fit:cover;transition:transform 1.3s var(--ease)}
+.card:hover figure img{transform:scale(1.06)}
+.rev{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:1px;background:var(--line);border-block:1px solid var(--line)}
+.rev article{background:#fff;padding:clamp(22px,3vw,40px);transition:background var(--dur) var(--ease)}
+.rev article:hover{background:var(--mist)}
+.rev h4{font-size:15.5px;margin-bottom:9px}
+.rev p{font-size:13px;color:var(--ink60);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.rev .label{margin-top:16px;display:block}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .95s var(--ease),transform .95s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.fab{position:fixed;right:16px;bottom:16px;z-index:70;display:flex;align-items:center;gap:9px;
+  background:var(--green);color:#fff;padding:13px 19px;border-radius:999px;font-size:12.5px;
+  box-shadow:0 6px 22px rgba(4,163,63,.3);transition:transform var(--dur) var(--ease)}
+.fab:hover{transform:translateY(-3px)}
+.fab i{width:7px;height:7px;border-radius:50%;background:#fff;display:block}
+footer{border-top:1px solid var(--line);padding:42px 0;font-size:12px;color:var(--ink40)}
+
+@media (max-width:1180px){ .hnav{display:none} }
+/* ── 모바일: 카피 위 / 서가 아래, 책은 여전히 안 잘림 ── */
+@media (max-width:900px){
+  .hero{height:100svh;min-height:0}
+  .hero .shell{grid-template-columns:1fr;grid-template-rows:auto 1fr;
+    gap:clamp(14px,2.4vh,26px);align-items:start;padding-block:clamp(14px,2.4vh,26px)}
+  .hcopy h1{font-size:clamp(27px,min(8.4vw,6.4vh),46px)}
+  .hcopy .sub{font-size:13.5px;max-width:100%}
+  .cta a{padding:11px 17px;font-size:12.5px}
+  .hstat{gap:14px;margin-top:14px}
+  .hstat b{font-size:17px}
+  .shelfbox{justify-content:flex-end;padding-bottom:4px}
+  .shelf{height:clamp(180px,34vh,300px);gap:5px}
+  .spine{padding:12px 3px 10px}
+  .spine .tt{font-size:12px;letter-spacing:.1em}
+  .spine .yr,.spine .no{font-size:9px}
+  .spine::after{display:none}
+  .book:hover{transform:none;flex-grow:1}
+  .card{grid-template-columns:1fr} .card figure{height:190px;order:-1}
+  .viewer .vfoot{flex-direction:column;align-items:flex-start;gap:12px}
+}
+@media (max-width:420px){
+  .spine .tt{font-size:11px}
+  .shelf{gap:4px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="shell hbar">
+    <a class="brand" href="#">
+      <svg viewBox="0 0 100 100" aria-label="삼성흉부외과">
+        <rect x="3" y="32" width="28" height="28" fill="#04A33F"/>
+        <path d="M36 2 h28 v20 a14 14 0 0 1 -14 14 h-14 z" fill="#0070BC"/>
+        <rect x="36" y="30" width="28" height="68" fill="#0070BC"/>
+        <path d="M50 98 V52 a12 12 0 0 1 12 -12 h36" fill="none" stroke="#04A33F" stroke-width="7"/>
+        <path d="M62 98 V60 a10 10 0 0 1 10 -10 h26" fill="none" stroke="#04A33F" stroke-width="7"/>
+        <path d="M74 98 V70 a8 8 0 0 1 8 -8 h16" fill="none" stroke="#04A33F" stroke-width="7"/>
+      </svg>
+      <span class="nm"><b>삼성흉부외과</b><i>SINCE 2002</i></span>
+    </a>
+    <nav class="hnav">
+      <a href="#treat">하지정맥류</a><a href="#treat">치료법</a>
+      <a href="#rev">치료후기</a><a href="#">학술활동</a><a href="#">진료안내</a>
+    </nav>
+    <a class="btn-tt" href="#" onclick="return false"><i></i> 톡톡 문의</a>
+  </div>
+</header>
+
+<!-- ═══ 첫 화면 : 이것으로 완결 ═══ -->
+<section class="hero">
+  <div class="shell">
+    <div class="hcopy">
+      <span class="mask go d1"><span class="label">Varicose Vein Clinic · 하지정맥류</span></span>
+      <h1 class="display">
+        <span class="mask go d2"><span>다리의 무게를,</span></span>
+        <span class="mask go d3"><span><em class="hl" style="font-style:normal">20년</em>의 손으로.</span></span>
+      </h1>
+      <span class="mask go d4"><span class="sub">진단부터 재수술까지, 한 사람이 끝까지 봅니다.</span></span>
+      <div class="cta mask go d5">
+        <a class="primary" href="#treat">치료법 보기 →</a>
+        <a class="ghost" href="#rev">치료후기 942건</a>
+      </div>
+      <div class="hstat">
+        <div><b data-count="2002">2002</b><span>Since</span></div>
+        <div><b data-count="40000" data-suffix="+">0</b><span>Case</span></div>
+        <div><b data-count="942">0</b><span>치료후기</span></div>
+        <div><b>3</b><span>대전·안양평촌·천안</span></div>
+      </div>
+    </div>
+
+    <div class="shelfbox">
+      <div class="shelf-lead">
+        <h2><em>20여 년의 증거</em> — 한 권씩 꺼내 보세요</h2>
+        <span class="label">Tap to open</span>
+      </div>
+      <div class="shelf" id="shelfRow"></div>
+      <div class="shelf-base"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 뷰어 -->
+<div class="scrim" id="scrim"></div>
+<div class="viewer" id="viewer" role="dialog" aria-modal="true">
+  <div class="vtop"><span class="label" id="vIdx">01 / 05</span>
+    <button class="vclose" id="vClose">닫기 ×</button></div>
+  <div class="vbody"><img id="vImg" src="" alt=""></div>
+  <div class="vfoot">
+    <div><b id="vT"></b><span id="vD"></span></div>
+    <div class="vnav"><button id="vPrev" aria-label="이전">←</button><button id="vNext" aria-label="다음">→</button></div>
+  </div>
+</div>
+
+<div class="marq"><div class="marq-track" id="marqTrack"></div></div>
+
+<section class="sec shell" id="treat">
+  <div class="sec-head reveal">
+    <span class="label">Treatment</span>
+    <h2 class="display">클릭하지 않아도<br>치료의 전 과정이 흐릅니다.</h2>
+    <p>혈관 상태에 따라 방법이 달라집니다. 스크롤만으로 네 가지를 비교하세요.</p>
+  </div>
+  <div id="stackWrap"></div>
+</section>
+
+<section class="sec" id="rev">
+  <div class="shell sec-head reveal">
+    <span class="label">Real Story · 942</span>
+    <h2 class="display">환자가 직접 쓴<br>942개의 기록.</h2>
+    <p>20년치 치료후기를 검색·필터 가능한 자산으로 되살립니다.</p>
+  </div>
+  <div class="rev" id="revWrap"></div>
+</section>
+
+<footer><div class="shell">삼성흉부외과 · 데모 v5 — 첫 화면 완결형 서가 / FLIP 확장 뷰어</div></footer>
+<a class="fab" href="#" onclick="return false"><i></i> 톡톡 문의하기</a>
+
+<script>
+const BOOKS=[
+ {yr:"2019",tt:"미국 정맥학회 협진",img:"/hero/slide_img20191004.jpg",t:"미국 정맥학회 이사 캐더린 깁슨 박사",d:"본원 방문 및 협진 수술"},
+ {yr:"학술",tt:"일본 정맥학회장 방문",img:"/hero/slide_img3.jpg",t:"일본 정맥학회장 호시노 교수",d:"최신 치료법 참관 · 학술 교류"},
+ {yr:"성과",tt:"Why 삼성흉부외과",img:"/hero/slide_img4.jpg",t:"40,000여 Case",d:"삼성의료원 전문의 · 해외논문 게재 및 심사위원"},
+ {yr:"환자",tt:"리얼스토리",img:"/hero/slide_img1.jpg",t:"다리에 무거움과 통증을 느끼신다면",d:"환자가 직접 말하는 치료의 기록"},
+ {yr:"진료",tt:"하지정맥류 클리닉",img:"/hero/slide_img2.jpg",t:"진단 · 치료 · 재수술",d:"한 사람이 끝까지 봅니다"}
+];
+const shelf=document.getElementById('shelfRow');
+shelf.innerHTML=BOOKS.map((b,i)=>`
+ <article class="book" data-i="${i}" tabindex="0" aria-label="${b.tt}">
+   <div class="spine"><span class="yr">${b.yr}</span><span class="tt">${b.tt}</span><span class="no">0${i+1}</span></div>
+ </article>`).join('');
+
+/* ── FLIP 확장 뷰어 : 책 자리 → 화면 전체 ── */
+const viewer=document.getElementById('viewer'), scrim=document.getElementById('scrim');
+const vImg=document.getElementById('vImg'), vT=document.getElementById('vT'), vD=document.getElementById('vD'), vIdx=document.getElementById('vIdx');
+let cur=-1, srcRect=null;
+
+function fullBox(){
+  const pad=Math.min(window.innerWidth,window.innerHeight)*0.035;
+  return {top:pad, left:pad, width:innerWidth-pad*2, height:innerHeight-pad*2};
+}
+function place(r,radius){
+  viewer.style.top=r.top+'px'; viewer.style.left=r.left+'px';
+  viewer.style.width=r.width+'px'; viewer.style.height=r.height+'px';
+  viewer.style.borderRadius=radius;
+}
+function fill(i){
+  const b=BOOKS[i];
+  vImg.src=b.img; vImg.alt=b.t; vT.textContent=b.t; vD.textContent=b.d;
+  vIdx.textContent=`0${i+1} / 0${BOOKS.length}`;
+}
+function open(i,el){
+  cur=i; fill(i);
+  const r=el.getBoundingClientRect();
+  srcRect={top:r.top,left:r.left,width:r.width,height:r.height};
+  viewer.classList.remove('anim');
+  place(srcRect,'2px 5px 5px 2px');
+  viewer.classList.add('live'); scrim.classList.add('live'); document.body.classList.add('lock');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    viewer.classList.add('anim'); place(fullBox(),'3px');
+  }));
+}
+function close(){
+  if(cur<0)return;
+  viewer.classList.add('anim');
+  if(srcRect) place(srcRect,'2px 5px 5px 2px');
+  viewer.classList.remove('live'); scrim.classList.remove('live'); document.body.classList.remove('lock');
+  cur=-1;
+}
+function step(d){
+  if(cur<0)return;
+  cur=(cur+d+BOOKS.length)%BOOKS.length; fill(cur);
+  const el=shelf.querySelector(`.book[data-i="${cur}"]`);
+  if(el){const r=el.getBoundingClientRect();srcRect={top:r.top,left:r.left,width:r.width,height:r.height}}
+}
+shelf.addEventListener('click',e=>{const bk=e.target.closest('.book');if(bk)open(+bk.dataset.i,bk)});
+shelf.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const bk=e.target.closest('.book');if(bk){e.preventDefault();open(+bk.dataset.i,bk)}}});
+document.getElementById('vClose').onclick=close;
+scrim.onclick=close;
+document.getElementById('vPrev').onclick=()=>step(-1);
+document.getElementById('vNext').onclick=()=>step(1);
+addEventListener('keydown',e=>{
+  if(cur<0)return;
+  if(e.key==='Escape')close(); if(e.key==='ArrowLeft')step(-1); if(e.key==='ArrowRight')step(1);
+});
+addEventListener('resize',()=>{ if(cur>=0) place(fullBox(),'3px') });
+
+/* ── 이후 섹션 ── */
+const FACTS=["Since 2002","40,000+ Case","미국 정맥학회 이사 협진","일본 정맥학회장 방문","해외논문 게재·심사위원","전 파장대 레이저 장비","치료후기 942건","대전 · 안양/평촌 · 천안"];
+const row=FACTS.map(f=>`<span><em>${f}</em></span>`).join('');
+document.getElementById('marqTrack').innerHTML=row+row;
+
+const CARDS=[
+ {no:"01",t:"혈관 레이저 폐쇄술",d:"전 파장대 레이저를 갖춰 혈관 상태에 맞는 파장을 고릅니다. 절개 없이 역류 혈관만 닫습니다.",m:["당일 귀가","국소마취"],img:"/img/img_0302_01.jpg"},
+ {no:"02",t:"고주파 폐쇄술",d:"열 손상을 낮춰 통증과 멍을 줄입니다. 직경이 큰 복재정맥에 적합합니다.",m:["회복 빠름","보험 적용 가능"],img:"/img/img_0302_02.jpg"},
+ {no:"03",t:"정맥류 절제술",d:"돌출된 혈관 덩어리를 최소 절개로 제거합니다. 폐쇄술과 병행할 때 결과가 좋습니다.",m:["흉터 최소","병행 시술"],img:"/img/img_0304_01.jpg"},
+ {no:"04",t:"재수술 · 합병증 클리닉",d:"타 병원 재발 사례를 20년 데이터로 다시 봅니다. 원인 혈관을 찾는 것이 먼저입니다.",m:["재발 원인 규명","초음파 정밀"],img:"/img/img_0307_02.jpg"}
+];
+document.getElementById('stackWrap').innerHTML=CARDS.map((c,i)=>`
+ <article class="card" style="z-index:${i+1};top:${86+i*13}px">
+   <div class="txt"><div><span class="no">${c.no}</span><h3 class="display">${c.t}</h3><p>${c.d}</p></div>
+   <div class="meta">${c.m.map(x=>`<span>${x}</span>`).join('')}</div></div>
+   <figure><img src="${c.img}" alt="" loading="lazy" onerror="this.parentNode.style.background='#eef2f6';this.remove()"></figure>
+ </article>`).join('');
+
+const REVS=[
+ {t:"다리에 쥐가 나고 아팠는데…",p:"밤마다 종아리에 쥐가 나서 잠을 못 잤습니다. 수술 후 첫날부터 그 느낌이 없어졌어요.",v:"1,535"},
+ {t:"여름에 반바지를 입을 수 있게 되었어요!",p:"10년 넘게 긴 바지만 입었습니다. 올여름은 처음으로 반바지를 입었습니다.",v:"2,477"},
+ {t:"수술에 대한 불안감은 떨치고…",p:"흉터가 걱정이었는데 지금은 어디를 했는지 저도 못 찾습니다.",v:"1,409"},
+ {t:"레이저 수술을 하였습니다",p:"당일 걸어서 나왔고 다음 날 출근했습니다.",v:"6"}
+];
+document.getElementById('revWrap').innerHTML=REVS.map(r=>`<article><h4>${r.t}</h4><p>${r.p}</p><span class="label">조회 ${r.v}</span></article>`).join('');
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.14});
+document.querySelectorAll('.reveal').forEach(e=>io.observe(e));
+const cio=new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting)return; cio.unobserve(e.target);
+  const el=e.target,to=+el.dataset.count,sfx=el.dataset.suffix||'';
+  let t0=null;const step=ts=>{if(!t0)t0=ts;const p=Math.min(1,(ts-t0)/1500);
+    el.textContent=Math.floor(to*(1-Math.pow(1-p,3))).toLocaleString('ko-KR')+(p===1?sfx:'');
+    if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step);
+}),{threshold:.4});
+document.querySelectorAll('[data-count]').forEach(e=>cio.observe(e));
+</script>
+</body>
+</html>

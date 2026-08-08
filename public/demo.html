@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>삼성흉부외과 — 모션 데모</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400&family=Noto+Serif+KR:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0a0a; --ink60:#444; --ink40:#8a8a8a;
+  --paper:#fff; --mist:#fafafb; --line:#e6e6eb;
+  --accent:#00408f;
+  --ease:cubic-bezier(.36,0,0,1); --dur:.5s;
+  --gut:clamp(20px,5vw,80px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:"Noto Sans KR",-apple-system,"Helvetica Neue",sans-serif;
+  font-size:15px;font-weight:400;line-height:1.75;letter-spacing:-.01em}
+h1,h2,h3,strong{font-weight:400}
+.shell{max-width:1600px;margin-inline:auto;padding-inline:var(--gut)}
+.label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink40)}
+.display{font-family:"Noto Serif KR",Georgia,serif;font-weight:300;line-height:1.32;letter-spacing:-.02em}
+
+/* ===== 데모 안내 바 ===== */
+.demobar{position:fixed;top:0;left:0;right:0;z-index:99;background:#0a0a0a;color:#fff;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px var(--gut);display:flex;gap:18px;flex-wrap:wrap}
+.demobar a{color:#fff;text-decoration:none;opacity:.55;transition:opacity var(--dur) var(--ease)}
+.demobar a:hover{opacity:1}
+.demobar b{font-weight:400;opacity:1}
+
+/* ===== ① HERO : Aetheris 계열 — 아버지 슬라이드 5장 보존 ===== */
+.hero{position:relative;height:100svh;min-height:560px;overflow:hidden;background:#000;margin-top:34px}
+.hero figure{position:absolute;inset:0;opacity:0;transition:opacity 1.6s var(--ease)}
+.hero figure.on{opacity:1}
+.hero img{width:100%;height:100%;object-fit:cover;object-position:center;transform:scale(1.02)}
+.hero figure.on img{animation:kb 9s var(--ease) forwards}
+@keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.11) translate3d(0,-1.2%,0)}}
+.hero .veil{position:absolute;inset:0;background:
+  linear-gradient(90deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.34) 42%,rgba(0,0,0,.06) 72%),
+  linear-gradient(0deg,rgba(0,0,0,.45),transparent 45%)}
+.hero .copy{position:absolute;left:0;right:0;bottom:clamp(56px,11vh,130px);color:#fff}
+.hero .copy .label{color:rgba(255,255,255,.62)}
+.hero .copy h1{font-size:clamp(28px,4.4vw,64px);margin:.55em 0 .5em;max-width:17ch}
+.hero .copy p{font-size:clamp(13px,1.15vw,16px);color:rgba(255,255,255,.78);max-width:44ch}
+/* 카피 순차 등장 */
+.rise>*{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.rise.go>*{opacity:1;transform:none}
+.rise.go>*:nth-child(1){transition-delay:.10s}
+.rise.go>*:nth-child(2){transition-delay:.22s}
+.rise.go>*:nth-child(3){transition-delay:.34s}
+.hero .dots{position:absolute;right:var(--gut);bottom:clamp(56px,11vh,130px);display:flex;flex-direction:column;gap:14px}
+.hero .dots button{width:34px;height:1px;border:0;background:rgba(255,255,255,.32);cursor:pointer;padding:0;
+  transition:background var(--dur) var(--ease),width var(--dur) var(--ease)}
+.hero .dots button.on{background:#fff;width:54px}
+.scrollcue{position:absolute;left:var(--gut);bottom:26px;color:rgba(255,255,255,.5);font-size:10px;
+  letter-spacing:.2em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.scrollcue i{display:block;width:44px;height:1px;background:rgba(255,255,255,.35);position:relative;overflow:hidden}
+.scrollcue i::after{content:"";position:absolute;inset:0;background:#fff;animation:cue 2.4s var(--ease) infinite}
+@keyframes cue{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
+
+/* ===== ② MARQUEE : 신뢰 지표 상시 노출 ===== */
+.marq{border-block:1px solid var(--line);padding:26px 0;overflow:hidden;background:var(--paper)}
+.marq-track{display:flex;width:max-content;animation:mv 46s linear infinite}
+.marq:hover .marq-track{animation-play-state:paused}
+@keyframes mv{to{transform:translateX(-50%)}}
+.marq span{display:inline-flex;align-items:center;gap:14px;padding-inline:34px;white-space:nowrap;
+  font-size:clamp(15px,1.5vw,22px);color:var(--ink60)}
+.marq span em{font-style:normal;color:var(--ink)}
+.marq span::after{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:.55}
+
+/* ===== ③ STICKY STACK CARDS : 치료법 ===== */
+.sec{padding:clamp(80px,13vh,180px) 0}
+.sec-head{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:clamp(40px,7vh,90px);max-width:52ch}
+.sec-head h2{font-size:clamp(24px,3vw,44px)}
+.sec-head p{color:var(--ink60);font-size:14px}
+.stack{position:relative}
+.card{position:sticky;top:14vh;background:var(--mist);border:1px solid var(--line);
+  display:grid;grid-template-columns:1.05fr .95fr;min-height:clamp(360px,58vh,540px);overflow:hidden;
+  transition:transform .7s var(--ease),opacity .7s var(--ease)}
+.card+.card{margin-top:26px}
+.card .txt{padding:clamp(28px,4vw,60px);display:flex;flex-direction:column;justify-content:space-between}
+.card .no{font-size:11px;letter-spacing:.2em;color:var(--ink40)}
+.card h3{font-size:clamp(20px,2.3vw,34px);margin:.45em 0 .5em}
+.card p{color:var(--ink60);font-size:14px;max-width:38ch}
+.card .meta{display:flex;gap:26px;font-size:12px;color:var(--ink40);border-top:1px solid var(--line);padding-top:16px;margin-top:26px}
+.card figure{overflow:hidden;background:#ececed}
+.card figure img{width:100%;height:100%;object-fit:cover;transform:scale(1.02);
+  transition:transform 1.2s var(--ease)}
+.card:hover figure img{transform:scale(1.07)}
+
+/* ===== 후기 프리뷰(참고) ===== */
+.rev{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--line);border-block:1px solid var(--line)}
+.rev article{background:var(--paper);padding:clamp(24px,3vw,44px);transition:background var(--dur) var(--ease)}
+.rev article:hover{background:var(--mist)}
+.rev h4{font-size:16px;margin-bottom:10px}
+.rev p{font-size:13px;color:var(--ink60);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.rev .label{margin-top:20px;display:block}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .95s var(--ease),transform .95s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+
+/* 톡톡 FAB */
+.fab{position:fixed;right:20px;bottom:20px;z-index:80;display:flex;align-items:center;gap:10px;
+  background:var(--ink);color:#fff;padding:14px 20px;border-radius:999px;text-decoration:none;font-size:13px;
+  letter-spacing:.02em;transition:transform var(--dur) var(--ease),background var(--dur) var(--ease)}
+.fab:hover{transform:translateY(-3px);background:var(--accent)}
+.fab i{width:7px;height:7px;border-radius:50%;background:#22c55e;display:block}
+
+@media (max-width:860px){
+  .card{grid-template-columns:1fr;min-height:0}
+  .card figure{height:210px;order:-1}
+  .hero .dots{display:none}
+  .hero .copy h1{max-width:14ch}
+}
+</style>
+</head>
+<body>
+
+<div class="demobar">
+  <b>모션 데모</b>
+  <a href="#hero">① 히어로 — Aetheris 계열</a>
+  <a href="#marq">보너스 — Scroll Marquee</a>
+  <a href="#stack">② Sticky Stack Cards</a>
+  <span style="opacity:.45">우영미 톤 / 아버지 슬라이드 5장 보존</span>
+</div>
+
+<!-- ① HERO -->
+<section class="hero" id="hero">
+  <figure class="on"><img src="/hero/slide_img1.jpg" alt=""></figure>
+  <figure><img src="/hero/slide_img20191004.jpg" alt=""></figure>
+  <figure><img src="/hero/slide_img4.jpg" alt=""></figure>
+  <figure><img src="/hero/slide_img3.jpg" alt=""></figure>
+  <figure><img src="/hero/slide_img2.jpg" alt=""></figure>
+  <div class="veil"></div>
+  <div class="copy">
+    <div class="shell rise go" id="heroCopy">
+      <span class="label" id="hLabel">Real Story</span>
+      <h1 class="display" id="hTitle">다리에 무거움과 통증을<br>느끼신다면</h1>
+      <p id="hDesc">20년, 40,000 케이스. 하지정맥류만 보아온 손이 직접 진료합니다.</p>
+    </div>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="scrollcue"><i></i> Scroll</div>
+</section>
+
+<!-- 보너스 : MARQUEE -->
+<div class="marq" id="marq">
+  <div class="marq-track" id="marqTrack"></div>
+</div>
+
+<!-- ② STICKY STACK -->
+<section class="sec shell" id="stack">
+  <div class="sec-head reveal">
+    <span class="label">Treatment</span>
+    <h2 class="display">한 번의 스크롤로<br>치료의 전 과정을 봅니다.</h2>
+    <p>지금 사이트는 치료법을 보려면 3단계 메뉴를 눌러야 합니다. 스티키 스택은 클릭 없이 순차로 펼칩니다.</p>
+  </div>
+  <div class="stack" id="stackWrap"></div>
+</section>
+
+<!-- 후기 프리뷰 -->
+<section class="sec">
+  <div class="shell sec-head reveal">
+    <span class="label">Real Story · 942</span>
+    <h2 class="display">환자가 직접 쓴 942개의 기록.</h2>
+    <p>20년치 치료후기를 검색·필터 가능한 자산으로 되살립니다.</p>
+  </div>
+  <div class="rev" id="rev"></div>
+</section>
+
+<div style="height:14vh"></div>
+
+<a class="fab" href="#" onclick="return false"><i></i> 톡톡 문의하기</a>
+
+<script>
+/* ---- 히어로 크로스페이드 + 카피 시퀀스 ---- */
+const SLIDES=[
+ {label:"Real Story", title:"다리에 무거움과 통증을<br>느끼신다면", desc:"20년, 40,000 케이스. 하지정맥류만 보아온 손이 직접 진료합니다."},
+ {label:"Global Collaboration", title:"미국 정맥학회 이사<br>캐더린 깁슨 박사 협진", desc:"세계적인 정맥류 석학이 본원을 찾아 함께 수술했습니다."},
+ {label:"Why Samsung", title:"Why<br>삼성흉부외과인가", desc:"삼성의료원 흉부외과 전문의 · 해외논문 게재 및 심사위원 · 40,000여 Case · 전 파장대 레이저 장비."},
+ {label:"Academic", title:"일본 정맥학회장<br>본원 방문", desc:"호시노 교수가 삼성흉부외과의 최신 치료를 참관했습니다."},
+ {label:"Real Story", title:"다시, 가벼운 다리로", desc:"환자가 직접 남긴 942개의 기록이 증명합니다."}
+];
+const figs=[...document.querySelectorAll('.hero figure')];
+const dots=document.getElementById('dots');
+const copy=document.getElementById('heroCopy');
+let cur=0,timer;
+figs.forEach((_,i)=>{const b=document.createElement('button');b.onclick=()=>go(i);dots.appendChild(b)});
+function paint(i){
+  copy.classList.remove('go');
+  setTimeout(()=>{
+    document.getElementById('hLabel').textContent=SLIDES[i].label;
+    document.getElementById('hTitle').innerHTML=SLIDES[i].title;
+    document.getElementById('hDesc').textContent=SLIDES[i].desc;
+    copy.classList.add('go');
+  },380);
+}
+function go(i){
+  figs[cur].classList.remove('on');
+  cur=i; figs[cur].classList.add('on');
+  // 켄번스 재시작
+  const im=figs[cur].querySelector('img'); im.style.animation='none'; void im.offsetWidth; im.style.animation='';
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===cur));
+  paint(i);
+  clearInterval(timer); timer=setInterval(next,6400);
+}
+function next(){ go((cur+1)%figs.length) }
+[...dots.children][0].classList.add('on');
+timer=setInterval(next,6400);
+
+/* ---- 마퀴 ---- */
+const FACTS=["Since 2002","40,000+ Case","미국 정맥학회 이사 협진","일본 정맥학회장 방문","해외논문 게재·심사위원","전 파장대 레이저 장비","치료후기 942건","대전 · 안양/평촌 · 천안"];
+const track=document.getElementById('marqTrack');
+const row=FACTS.map(f=>`<span><em>${f}</em></span>`).join('');
+track.innerHTML=row+row; // 50% 이동용 2배
+
+/* ---- 스티키 카드 ---- */
+const CARDS=[
+ {no:"01",t:"혈관 레이저 폐쇄술",d:"전 파장대 레이저 장비로 혈관 상태에 맞춰 파장을 선택합니다. 절개 없이 역류 혈관만 정밀하게 닫습니다.",m:["당일 귀가","국소마취"],img:"/img/img_0302_01.jpg"},
+ {no:"02",t:"고주파 폐쇄술",d:"열 손상을 낮춘 방식으로 통증과 멍을 줄입니다. 직경이 큰 복재정맥에 적합합니다.",m:["회복 빠름","보험 적용 가능"],img:"/img/img_0303_01.jpg"},
+ {no:"03",t:"정맥류 절제술",d:"피부 밑으로 돌출된 혈관 덩어리를 최소 절개로 제거합니다. 폐쇄술과 병행할 때 결과가 좋습니다.",m:["흉터 최소","병행 시술"],img:"/img/img_0304_01.jpg"},
+ {no:"04",t:"재수술 · 합병증 클리닉",d:"타 병원 재발·합병증 사례를 20년 데이터로 다시 봅니다. 원인 혈관을 찾는 것이 먼저입니다.",m:["재발 원인 규명","초음파 정밀"],img:"/img/img_0307_02.jpg"}
+];
+document.getElementById('stackWrap').innerHTML=CARDS.map((c,i)=>`
+ <article class="card" style="z-index:${i+1}">
+   <div class="txt">
+     <div>
+       <span class="no">${c.no}</span>
+       <h3 class="display">${c.t}</h3>
+       <p>${c.d}</p>
+     </div>
+     <div class="meta">${c.m.map(x=>`<span>${x}</span>`).join('')}</div>
+   </div>
+   <figure><img src="${c.img}" alt="" onerror="this.parentNode.style.background='#e8eaee';this.remove()"></figure>
+ </article>`).join('');
+
+/* ---- 후기 프리뷰 ---- */
+const REVS=[
+ {t:"다리에 쥐가 나고 아팠는데…",p:"밤마다 종아리에 쥐가 나서 잠을 못 잤습니다. 수술 후 첫날부터 그 느낌이 없어졌어요.",v:"1,535"},
+ {t:"여름에 반바지를 입을 수 있게 되었어요!",p:"10년 넘게 긴 바지만 입었습니다. 올여름은 처음으로 반바지를 입었습니다.",v:"2,477"},
+ {t:"수술에 대한 불안감은 떨치고…",p:"흉터가 걱정이었는데 지금은 어디를 했는지 저도 못 찾습니다.",v:"1,409"},
+ {t:"레이저 수술을 하였습니다",p:"당일 걸어서 나왔고 다음 날 출근했습니다.",v:"6"}
+];
+document.getElementById('rev').innerHTML=REVS.map(r=>`
+ <article><h4>${r.t}</h4><p>${r.p}</p><span class="label">조회 ${r.v}</span></article>`).join('');
+
+/* ---- reveal ---- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll('.reveal').forEach(e=>io.observe(e));
+</script>
+</body>
+</html>

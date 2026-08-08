@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>삼성흉부외과 — v9 (메니스커스로 여는 20년의 증거)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+:root{
+  --blue:#0070BC; --green:#04A33F;
+  --ink:#101418; --ink60:#5b636b; --ink40:#98a1a9;
+  --paper:#fff; --mist:#f4f7f9; --line:#e6eaee;
+  --ease:cubic-bezier(.22,.61,.36,1); --dur:.45s;
+  --gut:clamp(16px,3.6vw,64px); --hh:66px;
+  --accent:#0070BC;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+body{background:var(--paper);color:var(--ink);font-family:Pretendard,-apple-system,"Noto Sans KR",sans-serif;
+  font-size:16px;line-height:1.6;letter-spacing:-.02em;overflow-x:hidden}
+body.lock{overflow:hidden}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+.shell{max-width:1680px;margin-inline:auto;padding-inline:var(--gut)}
+
+/* HEADER */
+header{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(255,255,255,.9);
+  backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.hbar{display:flex;align-items:center;justify-content:space-between;height:var(--hh);gap:16px}
+.brand{display:flex;align-items:center;gap:9px}
+.brand svg{width:28px;height:28px;flex:none}
+.brand .nm b{display:block;font-weight:700;font-size:15px;letter-spacing:-.03em}
+.brand .nm i{font-style:normal;font-size:9.5px;letter-spacing:.14em;color:var(--ink40);font-weight:500}
+.hnav{display:flex;gap:26px;font-size:14.5px;font-weight:500}
+.hnav a{position:relative;padding-block:5px}
+.hnav a::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--blue);transition:width var(--dur) var(--ease)}
+.hnav a:hover::after{width:100%}
+.btn-tt{display:inline-flex;align-items:center;gap:7px;background:var(--green);color:#fff;
+  padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;transition:transform var(--dur) var(--ease)}
+.btn-tt:hover{transform:translateY(-2px)}
+.btn-tt i{width:6px;height:6px;border-radius:50%;background:#fff;display:block}
+
+/* ═══ HERO : 아버지 증거가 주인공 ═══ */
+.hero{height:100svh;min-height:620px;padding-top:var(--hh);display:flex;flex-direction:column;
+  background:linear-gradient(168deg,#fff 0%,var(--mist) 62%,#eef3f7 100%);overflow:hidden}
+/* flex 아이템에 margin-inline:auto가 걸리면 stretch가 죽으므로 width 명시 */
+.hero .shell{width:100%;display:flex;flex-direction:column;height:100%;padding-block:clamp(12px,2.2vh,28px)}
+
+/* 상단 카피 */
+.hcopy{flex:none;padding-top:44px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;
+  color:var(--accent);margin-bottom:10px;transition:color .5s var(--ease)}
+.eyebrow::before{content:"";width:24px;height:2px;background:currentColor}
+.htitle{font-size:clamp(26px,min(4.4vw,6.2vh),62px);font-weight:600;line-height:1.16;letter-spacing:-.045em}
+.htitle .num{font-weight:700}
+.hdesc{margin-top:10px;font-size:clamp(13.5px,1.15vw,19px);color:var(--ink60);max-width:52ch}
+/* 문구 전환 */
+.fadeswap{transition:opacity .34s var(--ease),transform .5s var(--ease)}
+.fadeswap.out{opacity:0;transform:translateY(10px)}
+
+/* 아버지 원본 이미지 밴드 — 원본 비율 1383:401 고정, 무보정 */
+.evband{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
+  padding-block:clamp(10px,2vh,26px)}
+.evframe{position:relative;height:100%;width:auto;max-width:100%;aspect-ratio:1383/401;
+  border-radius:14px;overflow:hidden;background:#eef1f4;cursor:zoom-in;
+  box-shadow:0 26px 50px -30px rgba(16,26,36,.42);border:1px solid rgba(255,255,255,.7)}
+.evframe img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+  opacity:0;transition:opacity .5s var(--ease)}
+.evframe img.on{opacity:1}
+.evframe .zoom{position:absolute;right:12px;bottom:12px;background:rgba(10,16,22,.62);color:#fff;
+  padding:7px 13px;border-radius:999px;font-size:11.5px;font-weight:600;letter-spacing:.02em;
+  backdrop-filter:blur(6px);opacity:0;transition:opacity var(--dur) var(--ease)}
+.evframe:hover .zoom{opacity:1}
+
+/* ═══ 메니스커스 바 : 비드를 끌면 바가 녹았다 솟는다 ═══ */
+.mnzone{flex:none;padding-top:clamp(30px,4.6vh,52px)}
+.mnhead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:8px;flex-wrap:wrap}
+.mnhead b{font-size:13.5px;font-weight:600}
+.mnhead span{font-size:11.5px;font-weight:500;color:var(--ink40);letter-spacing:.02em}
+.mnbar{position:relative;width:100%;height:96px;touch-action:pan-y}
+.mnbar svg{position:absolute;left:0;bottom:0;width:100%;height:96px;overflow:visible}
+.mnhit{position:absolute;left:0;right:0;bottom:0;height:56px;display:flex;cursor:grab}
+.mnhit.drag{cursor:grabbing}
+.mnhit button{flex:1;background:transparent;border:0;cursor:inherit;padding:0 4px 8px;
+  display:flex;align-items:flex-end;justify-content:center;
+  font-size:clamp(10.5px,1vw,13px);font-weight:600;color:var(--ink40);letter-spacing:-.02em;
+  transition:color .45s var(--ease);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mnhit button.on{color:#fff}
+.mnglow{position:absolute;left:0;right:0;bottom:-26px;height:90px;pointer-events:none;
+  filter:blur(26px);opacity:.5;transition:opacity .5s var(--ease)}
+
+/* 진료 신호 */
+.sigbar{position:absolute;left:0;right:0;top:var(--hh);z-index:5;pointer-events:none}
+.sig-in{display:flex;align-items:center;gap:clamp(10px,1.8vw,26px);flex-wrap:wrap;
+  padding-block:9px;pointer-events:auto}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.status .dot{width:8px;height:8px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 0 4px rgba(4,163,63,.16);animation:pl 2.4s ease-in-out infinite}
+.status.off .dot{background:#c3ccd4;box-shadow:0 0 0 4px rgba(150,160,170,.14);animation:none}
+@keyframes pl{50%{box-shadow:0 0 0 8px rgba(4,163,63,.04)}}
+.hours{font-size:13px;color:var(--ink60);display:flex;gap:12px;flex-wrap:wrap}
+.hours b{font-weight:600;color:var(--ink)}
+.tel{display:inline-flex;align-items:baseline;gap:7px;font-size:clamp(15px,1.35vw,20px);font-weight:700;letter-spacing:-.03em}
+.tel small{font-size:11px;font-weight:600;color:var(--ink40);letter-spacing:0}
+.ckbtn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;
+  border:0;border-radius:999px;padding:10px 18px;font-size:13.5px;font-weight:600;cursor:pointer;
+  transition:background var(--dur) var(--ease)}
+.ckbtn:hover{background:var(--blue)}
+
+/* FLIP 뷰어 */
+.viewer{position:fixed;z-index:140;background:#0a1017;overflow:hidden;border-radius:14px;
+  opacity:0;pointer-events:none;display:flex;flex-direction:column;box-shadow:0 50px 90px -40px rgba(0,0,0,.7)}
+.viewer.live{opacity:1;pointer-events:auto}
+.viewer.anim{transition:top .72s var(--ease),left .72s var(--ease),width .72s var(--ease),height .72s var(--ease),border-radius .72s var(--ease)}
+.vtop{display:flex;justify-content:space-between;align-items:center;gap:14px;
+  padding:clamp(13px,1.8vw,24px) clamp(15px,2.2vw,32px);color:#fff;flex:none;font-size:13px;font-weight:600;letter-spacing:.05em}
+.vclose{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid rgba(255,255,255,.34);
+  color:#fff;padding:9px 16px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer}
+.vclose:hover{background:rgba(255,255,255,.15)}
+.vbody{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:0 clamp(10px,2.2vw,32px)}
+.vbody img{max-width:100%;max-height:100%;object-fit:contain;opacity:0;transform:scale(.985);
+  transition:opacity .45s var(--ease) .3s,transform .75s var(--ease) .3s}
+.viewer.live .vbody img{opacity:1;transform:none}
+.vfoot{flex:none;padding:clamp(13px,1.8vw,24px) clamp(15px,2.2vw,32px);border-top:1px solid rgba(255,255,255,.14);
+  color:#fff;display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;
+  opacity:0;transform:translateY(12px);transition:opacity .45s var(--ease) .4s,transform .55s var(--ease) .4s}
+.viewer.live .vfoot{opacity:1;transform:none}
+.vfoot b{display:block;font-weight:600;font-size:clamp(15px,1.8vw,25px);letter-spacing:-.03em;margin-bottom:4px}
+.vfoot span{font-size:13.5px;color:rgba(255,255,255,.64)}
+.vnav{display:flex;gap:8px}
+.vnav button{width:44px;height:44px;border:1.5px solid rgba(255,255,255,.32);background:transparent;color:#fff;
+  border-radius:999px;cursor:pointer;font-size:16px}
+.vnav button:hover{background:rgba(255,255,255,.15)}
+.scrim{position:fixed;inset:0;z-index:130;background:rgba(8,12,16,.5);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .5s var(--ease)}
+.scrim.live{opacity:1;pointer-events:auto}
+
+/* 자가체크 */
+.checker{position:fixed;z-index:150;left:50%;top:50%;transform:translate(-50%,-46%) scale(.97);
+  width:min(560px,92vw);max-height:86svh;background:#fff;overflow:auto;opacity:0;pointer-events:none;
+  border-radius:16px;transition:opacity .45s var(--ease),transform .55s var(--ease);box-shadow:0 40px 80px -34px rgba(10,20,30,.5)}
+.checker.live{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.ck-top{display:flex;justify-content:space-between;align-items:center;padding:22px 26px;border-bottom:1px solid var(--line)}
+.ck-top h3{font-size:20px;font-weight:700;letter-spacing:-.03em}
+.ck-close{border:0;background:transparent;font-size:22px;cursor:pointer;color:var(--ink40)}
+.ck-body{padding:20px 26px 8px}
+.ck-body>p{font-size:14px;color:var(--ink60);margin-bottom:16px}
+.ck-list{display:flex;flex-direction:column;gap:8px}
+.ck-list label{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;
+  padding:14px 16px;cursor:pointer;font-size:15px;transition:all var(--dur) var(--ease)}
+.ck-list label:has(input:checked){border-color:var(--blue);background:#f2f8fd}
+.ck-list input{margin-top:3px;accent-color:var(--blue);width:18px;height:18px;flex:none}
+.ck-foot{padding:18px 26px 24px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.ck-result{font-size:14px;color:var(--ink60)}
+.ck-result b{font-weight:700;color:var(--ink)}
+.ck-go{background:var(--ink);color:#fff;border:0;padding:14px 22px;font-size:15px;font-weight:600;border-radius:999px;cursor:pointer}
+.ck-go:hover{background:var(--blue)}
+
+.fab{position:fixed;right:16px;bottom:16px;z-index:70;display:flex;align-items:center;gap:8px;
+  background:var(--green);color:#fff;padding:13px 19px;border-radius:999px;font-size:13.5px;font-weight:600;
+  box-shadow:0 8px 26px rgba(4,163,63,.32);transition:transform var(--dur) var(--ease)}
+.fab:hover{transform:translateY(-3px)}
+.fab i{width:7px;height:7px;border-radius:50%;background:#fff;display:block}
+
+@media (max-width:1180px){ .hnav{display:none} }
+@media (max-width:900px){
+  :root{--hh:56px}
+  .hero{min-height:0}
+  .htitle{font-size:clamp(22px,6.4vw,32px)}
+  .hdesc{font-size:13.5px;max-width:100%;margin-top:8px}
+  .eyebrow{font-size:12px;margin-bottom:8px}
+  .hours{display:none}
+  .ckbtn{padding:9px 14px;font-size:12.5px}
+  /* 모바일: 진료신호를 흐름 안으로 넣어 카피와 겹치지 않게 */
+  .sigbar{position:static}
+  .sig-in{gap:10px;padding-block:7px}
+  .hcopy{padding-top:6px}
+  /* 원본 비율은 폭 기준으로 (height:100%면 비율이 깨짐) */
+  .evframe{height:auto;width:100%}
+  .evband{padding-block:clamp(8px,1.6vh,18px)}
+  .tel{font-size:16px}
+  .mnbar,.mnbar svg{height:88px}
+  .mnhit button{font-size:10px;padding:0 2px 8px}
+  .evframe{border-radius:10px}
+  .vfoot{flex-direction:column;align-items:flex-start;gap:10px}
+  .fab{bottom:12px;right:12px;padding:11px 16px;font-size:12.5px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="shell hbar">
+    <a class="brand" href="#">
+      <svg viewBox="0 0 100 100" aria-label="삼성흉부외과">
+        <rect x="3" y="32" width="28" height="28" fill="#04A33F"/>
+        <path d="M36 2 h28 v20 a14 14 0 0 1 -14 14 h-14 z" fill="#0070BC"/>
+        <rect x="36" y="30" width="28" height="68" fill="#0070BC"/>
+        <path d="M50 98 V52 a12 12 0 0 1 12 -12 h36" fill="none" stroke="#04A33F" stroke-width="7"/>
+        <path d="M62 98 V60 a10 10 0 0 1 10 -10 h26" fill="none" stroke="#04A33F" stroke-width="7"/>
+        <path d="M74 98 V70 a8 8 0 0 1 8 -8 h16" fill="none" stroke="#04A33F" stroke-width="7"/>
+      </svg>
+      <span class="nm"><b>삼성흉부외과</b><i>대전 · SINCE 2002</i></span>
+    </a>
+    <nav class="hnav">
+      <a href="#">하지정맥류</a><a href="#">치료법</a><a href="#">치료후기</a>
+      <a href="#">학술활동</a><a href="#">진료안내</a><a href="#">오시는 길</a>
+    </nav>
+    <a class="btn-tt" href="#" onclick="return false"><i></i> 톡톡 문의</a>
+  </div>
+</header>
+
+<section class="hero" id="hero">
+  <!-- 진료 신호 -->
+  <div class="sigbar"><div class="shell sig-in">
+    <span class="status" id="st"><span class="dot"></span><span id="stTxt">확인중</span></span>
+    <span class="hours"><span>평일 <b>09:00–18:00</b></span><span>토 <b>09:00–13:00</b></span><span>점심 <b>13:00–14:00</b></span></span>
+    <a class="tel" href="tel:0424713075"><small>대전</small>042-471-3075</a>
+    <button class="ckbtn" id="openCk">내 증상 자가체크 →</button>
+  </div></div>
+
+  <div class="shell">
+    <div class="hcopy">
+      <span class="eyebrow fadeswap" id="hEb">Evidence</span>
+      <h1 class="htitle fadeswap" id="hT">20년이 남긴 증거</h1>
+      <p class="hdesc fadeswap" id="hD">아래 방울을 끌어 보세요.</p>
+    </div>
+
+    <!-- 아버지 원본 이미지 : 무보정, 원본 비율 -->
+    <div class="evband">
+      <div class="evframe" id="evFrame">
+        <span class="zoom">크게 보기 ↗</span>
+      </div>
+    </div>
+
+    <!-- 메니스커스 바 -->
+    <div class="mnzone">
+      <div class="mnhead">
+        <b>20년의 증거 <span style="color:var(--ink40);font-weight:500">5</span></b>
+        <span>방울을 탭하거나 바를 따라 끌어보세요</span>
+      </div>
+      <div class="mnbar" id="mnBar">
+        <div class="mnglow" id="mnGlow"></div>
+        <svg id="mnSvg" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="beadGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path id="mnPath" fill="#141b22"/>
+          <circle id="mnBead" r="24" fill="#0070BC"/>
+          <circle id="mnBeadHi" r="24" fill="url(#beadGrad)"/>
+        </svg>
+        <div class="mnhit" id="mnHit"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="viewer" id="viewer" role="dialog" aria-modal="true">
+  <div class="vtop"><span id="vIdx">01 / 05</span><button class="vclose" id="vClose">닫기 ×</button></div>
+  <div class="vbody"><img id="vImg" src="" alt=""></div>
+  <div class="vfoot"><div><b id="vT"></b><span id="vD"></span></div>
+    <div class="vnav"><button id="vPrev">←</button><button id="vNext">→</button></div></div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="checker" id="checker" role="dialog" aria-modal="true">
+  <div class="ck-top"><h3>내 증상 자가체크</h3><button class="ck-close" id="ckClose">×</button></div>
+  <div class="ck-body"><p>해당하는 항목을 모두 선택하세요. 겉으로 혈관이 보이지 않아도 하지정맥류일 수 있습니다.</p>
+    <div class="ck-list" id="ckList"></div></div>
+  <div class="ck-foot"><span class="ck-result" id="ckResult">항목을 선택해 주세요.</span><button class="ck-go">상담 문의하기</button></div>
+</div>
+
+<a class="fab" href="#" onclick="return false"><i></i> 톡톡 문의하기</a>
+
+<script>
+/* ═══ 아버지 원본 5장 — 무보정 ═══ */
+const EV=[
+ {tab:"성과",img:"/hero/slide_img4.jpg",c:"#0070BC",eb:"Why 삼성흉부외과",
+  t:'하지정맥류 <span class="num">40,000</span> 케이스',
+  d:"삼성의료원 흉부외과 전문의 · 해외논문 게재 및 심사위원 · 전 파장대 레이저 장비"},
+ {tab:"미국 학회",img:"/hero/slide_img20191004.jpg",c:"#1565c0",eb:"2019 · Global",
+  t:'미국 정맥학회 이사<br>캐더린 깁슨 박사 협진',
+  d:"세계적인 정맥류 석학이 본원을 찾아 함께 수술했습니다."},
+ {tab:"일본 학회",img:"/hero/slide_img3.jpg",c:"#04A33F",eb:"Academic",
+  t:'일본 정맥학회장<br>본원 방문',
+  d:"호시노 교수가 삼성흉부외과의 최신 치료를 참관했습니다."},
+ {tab:"리얼스토리",img:"/hero/slide_img1.jpg",c:"#0a7f6b",eb:"Real Story",
+  t:'다리에 무거움과<br>통증을 느끼신다면',
+  d:"환자가 직접 말하는 치료의 기록입니다."},
+ {tab:"회복",img:"/hero/slide_img2.jpg",c:"#0070BC",eb:"Real Story",
+  t:'생활에 지장 없이<br>빠른 회복이 가능합니다',
+  d:"수술 다음 날부터 일상으로 돌아갑니다."}
+];
+
+/* 프레임에 이미지 채우기 */
+const frame=document.getElementById('evFrame');
+EV.forEach((e,i)=>{const im=new Image();im.src=e.img;im.alt=e.tab;im.loading=i?'lazy':'eager';
+  if(i===0)im.className='on';frame.insertBefore(im,frame.firstChild)});
+const imgs=[...frame.querySelectorAll('img')];
+
+/* ═══ 메니스커스 바 ═══ */
+const bar=document.getElementById('mnBar'), svg=document.getElementById('mnSvg'),
+      path=document.getElementById('mnPath'), bead=document.getElementById('mnBead'),
+      beadHi=document.getElementById('mnBeadHi'), hit=document.getElementById('mnHit'),
+      glow=document.getElementById('mnGlow');
+let W=0,H=96,BAR_H=56,BAR_TOP=40,R=24;
+const N=64;                       // 윗면 샘플 수
+let cur=0, cx=0, amp=1, targetCx=0, targetAmp=1, dragging=false, raf=null;
+let colFrom=EV[0].c, colTo=EV[0].c, colT=1;
+
+hit.innerHTML=EV.map((e,i)=>`<button data-i="${i}"${i===0?' class="on"':''}>${e.tab}</button>`).join('');
+const tabs=[...hit.children];
+
+function slotX(i){ return W*(i+.5)/EV.length }
+
+function resize(){
+  W=bar.clientWidth; H=bar.clientHeight;
+  BAR_H=Math.min(56,H*0.58); BAR_TOP=H-BAR_H; R=Math.max(18,Math.min(26,W/EV.length*0.28));
+  bead.setAttribute('r',R); beadHi.setAttribute('r',R);
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  cx=slotX(cur); targetCx=cx; draw();
+}
+
+/* 바의 윗면 = 액체 표면. 비드 위치에서 위로 부풀어 오른다 */
+function topY(x){
+  const s=R*2.0;                        // 융기 폭
+  const d=(x-cx)/s;
+  const bump=Math.exp(-d*d*1.15)*(R*1.02)*amp;
+  return BAR_TOP-bump;
+}
+function draw(){
+  const r=Math.min(20,BAR_H/2);
+  let p=`M ${r} ${topY(r)}`;
+  for(let i=1;i<=N;i++){const x=r+(W-2*r)*i/N;p+=` L ${x.toFixed(1)} ${topY(x).toFixed(1)}`}
+  p+=` Q ${W} ${topY(W-r)} ${W} ${BAR_TOP+r}`;
+  p+=` L ${W} ${H-r} Q ${W} ${H} ${W-r} ${H}`;
+  p+=` L ${r} ${H} Q 0 ${H} 0 ${H-r}`;
+  p+=` L 0 ${BAR_TOP+r} Q 0 ${topY(r)} ${r} ${topY(r)} Z`;
+  path.setAttribute('d',p);
+  const by=topY(cx)+R*0.34;             // 비드는 융기 정점에 반쯤 잠김
+  bead.setAttribute('cx',cx); bead.setAttribute('cy',by);
+  beadHi.setAttribute('cx',cx); beadHi.setAttribute('cy',by);
+  const col=mix(colFrom,colTo,colT);
+  bead.setAttribute('fill',col);
+  glow.style.background=`radial-gradient(closest-side, ${col}88, transparent 72%)`;
+  glow.style.transform=`translateX(${cx-W/2}px)`;
+  document.documentElement.style.setProperty('--accent',col);
+}
+function mix(a,b,t){
+  const p=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+  const A=p(a),B=p(b);
+  return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');
+}
+function loop(){
+  const dx=targetCx-cx;
+  cx+=dx*0.16;
+  // 이동 중이면 융기가 가라앉았다가(녹음) 멈추면 다시 솟는다
+  const speed=Math.abs(dx);
+  targetAmp = dragging ? 0.72 : (speed>2 ? 0.28 : 1);
+  amp+=(targetAmp-amp)*0.14;
+  colT=Math.min(1,colT+0.05);
+  draw();
+  if(Math.abs(dx)>0.4||Math.abs(targetAmp-amp)>0.01||colT<1){raf=requestAnimationFrame(loop)}
+  else{raf=null;cx=targetCx;amp=targetAmp;draw()}
+}
+function kick(){ if(!raf) raf=requestAnimationFrame(loop) }
+
+/* 콘텐츠 전환 */
+const hEb=document.getElementById('hEb'),hT=document.getElementById('hT'),hD=document.getElementById('hD');
+function setSlide(i,instant){
+  if(i===cur&&!instant)return;
+  const prev=cur; cur=i;
+  colFrom=mix(colFrom,colTo,colT); colTo=EV[i].c; colT=0;
+  tabs.forEach((t,k)=>t.classList.toggle('on',k===i));
+  imgs[prev].classList.remove('on'); imgs[i].classList.add('on');
+  [hEb,hT,hD].forEach(el=>el.classList.add('out'));
+  setTimeout(()=>{
+    hEb.textContent=EV[i].eb; hT.innerHTML=EV[i].t; hD.textContent=EV[i].d;
+    [hEb,hT,hD].forEach(el=>el.classList.remove('out'));
+  },300);
+}
+function goto(i,user){ if(user) stopAuto(); targetCx=slotX(i); setSlide(i); kick() }
+
+tabs.forEach((t,i)=>t.addEventListener('click',()=>goto(i,true)));
+
+/* 드래그 */
+function xFromEvent(e){
+  const r=bar.getBoundingClientRect();
+  const px=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+  return Math.max(R,Math.min(W-R,px));
+}
+function nearest(x){ let b=0,bd=1e9;EV.forEach((_,i)=>{const d=Math.abs(slotX(i)-x);if(d<bd){bd=d;b=i}});return b }
+function onDown(e){stopAuto();dragging=true;hit.classList.add('drag');onMove(e)}
+function onMove(e){
+  if(!dragging)return;
+  e.preventDefault();
+  const x=xFromEvent(e);
+  targetCx=x; cx=x;
+  const n=nearest(x); if(n!==cur) setSlide(n);
+  kick();
+}
+function onUp(){ if(!dragging)return; dragging=false; hit.classList.remove('drag');
+  targetCx=slotX(nearest(cx)); kick() }
+hit.addEventListener('mousedown',onDown); addEventListener('mousemove',onMove); addEventListener('mouseup',onUp);
+hit.addEventListener('touchstart',onDown,{passive:false}); addEventListener('touchmove',onMove,{passive:false}); addEventListener('touchend',onUp);
+
+addEventListener('resize',resize);
+resize(); setSlide(0,true);
+/* 자동 순환 — 사용자가 한 번이라도 조작하면 영구 정지 */
+let auto=setInterval(()=>goto((cur+1)%EV.length),7000);
+function stopAuto(){ if(auto){clearInterval(auto);auto=null} }
+
+/* ═══ FLIP 뷰어 ═══ */
+const viewer=document.getElementById('viewer'),scrim=document.getElementById('scrim');
+const vImg=document.getElementById('vImg'),vT=document.getElementById('vT'),vD=document.getElementById('vD'),vIdx=document.getElementById('vIdx');
+let vcur=-1,src=null;
+const box=()=>{const p=Math.min(innerWidth,innerHeight)*.035;return{top:p,left:p,width:innerWidth-p*2,height:innerHeight-p*2}};
+function vplace(r,rad){Object.assign(viewer.style,{top:r.top+'px',left:r.left+'px',width:r.width+'px',height:r.height+'px',borderRadius:rad})}
+function vfill(i){vImg.src=EV[i].img;vT.innerHTML=EV[i].t.replace(/<br>/g,' ');vD.textContent=EV[i].d;vIdx.textContent=`0${i+1} / 0${EV.length}`}
+function vopen(i){vcur=i;vfill(i);const r=frame.getBoundingClientRect();
+  src={top:r.top,left:r.left,width:r.width,height:r.height};
+  viewer.classList.remove('anim');vplace(src,'14px');
+  viewer.classList.add('live');scrim.classList.add('live');document.body.classList.add('lock');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{viewer.classList.add('anim');vplace(box(),'14px')}))}
+function vclose(){if(vcur<0)return;viewer.classList.add('anim');if(src)vplace(src,'14px');
+  viewer.classList.remove('live');scrim.classList.remove('live');document.body.classList.remove('lock');vcur=-1}
+function vstep(d){if(vcur<0)return;vcur=(vcur+d+EV.length)%EV.length;vfill(vcur);goto(vcur)}
+frame.addEventListener('click',()=>vopen(cur));
+document.getElementById('vClose').onclick=vclose;
+document.getElementById('vPrev').onclick=()=>vstep(-1);
+document.getElementById('vNext').onclick=()=>vstep(1);
+addEventListener('resize',()=>{if(vcur>=0)vplace(box(),'14px')});
+
+/* ═══ 진료 상태 ═══ */
+function stat(){const n=new Date(),d=n.getDay(),h=n.getHours()+n.getMinutes()/60;
+  if(d===0)return{o:false,m:'일요일 휴진'};
+  const c=d===6?13:18;
+  if(h<9)return{o:false,m:'진료 전 · 09:00 시작'};
+  if(h>=c)return{o:false,m:'진료 종료'};
+  if(d!==6&&h>=13&&h<14)return{o:false,m:'점심시간 · 14:00 재개'};
+  return{o:true,m:`오늘 진료중 · ${c}:00까지`}}
+function pStat(){const s=stat();document.getElementById('stTxt').textContent=s.m;
+  document.getElementById('st').classList.toggle('off',!s.o)}
+pStat(); setInterval(pStat,60000);
+
+/* ═══ 자가체크 ═══ */
+const SX=["다리가 쉽게 피곤하고 무겁게 느껴진다","종아리가 자주 붓거나 저리고 당긴다",
+ "밤에 자다가 다리에 쥐가 난다","발목이 붓고 가렵거나 피부색이 변했다",
+ "다리에 혈관이 튀어나와 보인다","오래 서 있으면 다리 통증이 심해진다"];
+const ckList=document.getElementById('ckList');
+ckList.innerHTML=SX.map(s=>`<label><input type="checkbox"><span>${s}</span></label>`).join('');
+const ckRes=document.getElementById('ckResult');
+ckList.addEventListener('change',()=>{const n=ckList.querySelectorAll('input:checked').length;
+  ckRes.innerHTML=n===0?'항목을 선택해 주세요.':n<=1?`<b>${n}개</b> 해당 — 경과 관찰을 권합니다.`
+   :n<=3?`<b>${n}개</b> 해당 — 초음파 검사를 권합니다.`:`<b>${n}개</b> 해당 — 정밀 진단이 필요합니다.`});
+const checker=document.getElementById('checker');
+document.getElementById('openCk').onclick=()=>{checker.classList.add('live');scrim.classList.add('live');document.body.classList.add('lock')};
+function closeCk(){checker.classList.remove('live');if(vcur<0){scrim.classList.remove('live');document.body.classList.remove('lock')}}
+document.getElementById('ckClose').onclick=closeCk;
+scrim.onclick=()=>{closeCk();vclose()};
+addEventListener('keydown',e=>{if(e.key==='Escape'){closeCk();vclose()}
+  if(vcur>=0){if(e.key==='ArrowLeft')vstep(-1);if(e.key==='ArrowRight')vstep(1)}});
+</script>
+</body>
+</html>
