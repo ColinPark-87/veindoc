@@ -2,6 +2,11 @@
 export type Evidence = {
   tab: string;
   img: string;
+  /** 모바일용 파생본 — 원본에서 '실사 영역'만 크롭(문구는 t/d 로 이미 화면에 있음).
+   *  원본은 무보정 보존, 이쪽만 public/hero/mobile/ 에 따로 둔다. */
+  imgMobile: string;
+  /** imgMobile 의 가로/세로 비 — 모바일 프레임 높이를 이 값으로 맞춰 잘림·왜곡 둘 다 0 */
+  mr: number;
   /** 메니스커스 방울 색 — 5개가 색상환에서 서로 46° 이상 떨어지게 */
   c: string;
   eb: string;
@@ -14,6 +19,8 @@ export const EVIDENCE: Evidence[] = [
   {
     tab: "성과",
     img: "/hero/slide_img4.jpg",
+    imgMobile: "/hero/mobile/slide_img4.jpg",
+    mr: 2.02,
     c: "#0070BC", // 블루 204°
     eb: "Why 삼성흉부외과",
     t: '하지정맥류 <span class="num">40,000</span> 케이스',
@@ -22,6 +29,8 @@ export const EVIDENCE: Evidence[] = [
   {
     tab: "미국 학회",
     img: "/hero/slide_img20191004.jpg",
+    imgMobile: "/hero/mobile/slide_img20191004.jpg",
+    mr: 2.49,
     c: "#C8102E", // 레드 350°
     eb: "2019 · Global",
     t: "미국 정맥학회 이사<br>캐더린 깁슨 박사 협진",
@@ -30,6 +39,8 @@ export const EVIDENCE: Evidence[] = [
   {
     tab: "일본 학회",
     img: "/hero/slide_img3.jpg",
+    imgMobile: "/hero/mobile/slide_img3.jpg",
+    mr: 1.69,
     c: "#04A33F", // 그린 142°
     eb: "Academic",
     t: "일본 정맥학회장<br>본원 방문",
@@ -38,6 +49,8 @@ export const EVIDENCE: Evidence[] = [
   {
     tab: "리얼스토리",
     img: "/hero/slide_img1.jpg",
+    imgMobile: "/hero/mobile/slide_img1.jpg",
+    mr: 1.12,
     c: "#7A3FD1", // 퍼플 264°
     eb: "Real Story",
     t: "다리에 무거움과<br>통증을 느끼신다면",
@@ -46,6 +59,8 @@ export const EVIDENCE: Evidence[] = [
   {
     tab: "회복",
     img: "/hero/slide_img2.jpg",
+    imgMobile: "/hero/mobile/slide_img2.jpg",
+    mr: 1.12,
     c: "#F09000", // 오렌지 36°
     eb: "Real Story",
     t: "생활에 지장 없이<br>빠른 회복이 가능합니다",

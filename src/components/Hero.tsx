@@ -312,16 +312,25 @@ export default function Hero() {
 
           {/* 아버지 원본 5장 — 무보정, 원본 비율 */}
           <div className="evband">
-            <div className="evframe" ref={frameRef} onClick={openViewer} data-track="evidence">
+            <div
+              className="evframe"
+              ref={frameRef}
+              onClick={openViewer}
+              data-track="evidence"
+              /* 모바일 프레임 높이 = 현재 슬라이드 파생본의 비율. 잘림·왜곡 0 */
+              style={{ "--evr": String(EVIDENCE[cur].mr) } as React.CSSProperties}
+            >
               {EVIDENCE.map((e, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={e.img}
-                  src={e.img}
-                  alt={e.tab}
-                  loading={i === 0 ? "eager" : "lazy"}
-                  className={i === cur ? "on" : undefined}
-                />
+                <picture key={e.img}>
+                  <source media="(max-width:900px)" srcSet={e.imgMobile} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={e.img}
+                    alt={e.tab}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    className={i === cur ? "on" : undefined}
+                  />
+                </picture>
               ))}
               <span className="zoom">크게 보기 ↗</span>
             </div>
