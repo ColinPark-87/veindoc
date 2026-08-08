@@ -14,6 +14,8 @@ const ADMIN_NAV = [
 ];
 
 const STAFF_NAV = [
+  { href: "/admin/calendar", label: "진료 캘린더" },
+  { href: "/admin/patients", label: "환자 관리" },
   { href: "/admin/appointments", label: "예약 관리" },
   { href: "/admin/sms", label: "문자 발송" },
   { href: "/admin/posts", label: "게시판" },

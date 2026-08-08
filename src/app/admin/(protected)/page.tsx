@@ -1,13 +1,23 @@
 import { getMe, isAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
-import Sparkline from "@/components/admin/Sparkline";
+import Chart, { type Point } from "@/components/admin/Chart";
 
 export const dynamic = "force-dynamic";
 
-const DAYS = 14;
+const PERIODS = [7, 14, 30, 90] as const;
 
-export default async function AdminHome() {
+export default async function AdminHome({
+  searchParams,
+}: {
+  searchParams: Promise<{ d?: string; c?: string }>;
+}) {
+  const sp = await searchParams;
+  const DAYS = PERIODS.includes(Number(sp.d) as (typeof PERIODS)[number])
+    ? Number(sp.d)
+    : 14;
+  const kind = sp.c === "bar" ? "bar" : "line";
+
   const me = await getMe();
   const supabase = await createClient();
   const since = new Date(Date.now() - DAYS * 864e5).toISOString();
@@ -28,7 +38,7 @@ export default async function AdminHome() {
   const clickRows = clicks.data ?? [];
   const apptRows = appts.data ?? [];
 
-  // 일자별 집계
+  // 일자별 집계 — '접속자'는 세션 수, 페이지뷰는 보조 지표
   const byDay = new Map<string, { v: number; s: Set<string> }>();
   for (let i = DAYS - 1; i >= 0; i--) {
     const d = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
@@ -42,7 +52,11 @@ export default async function AdminHome() {
       if (r.session_id) e.s.add(r.session_id);
     }
   });
-  const series = [...byDay.values()].map((e) => e.v);
+  const series: Point[] = [...byDay.entries()].map(([day, e]) => ({
+    label: `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))}`,
+    value: e.s.size,
+    sub: `페이지뷰 ${e.v.toLocaleString("ko-KR")}`,
+  }));
   const sessions = [...byDay.values()].reduce((a, e) => a + e.s.size, 0);
 
   const mobile = views.filter((r) => r.device === "mobile").length;
@@ -71,7 +85,13 @@ export default async function AdminHome() {
           <span className="adm-eyebrow">총괄 관리자</span>
           <h1>대시보드</h1>
         </div>
-        <span className="adm-period">최근 {DAYS}일</span>
+        <nav className="adm-filter">
+          {PERIODS.map((p) => (
+            <a key={p} href={`/admin?d=${p}&c=${kind}`} className={p === DAYS ? "on" : ""}>
+              {p}일
+            </a>
+          ))}
+        </nav>
       </header>
 
       <section className="adm-kpi">
@@ -83,12 +103,17 @@ export default async function AdminHome() {
       </section>
 
       <section className="adm-card">
-        <h2>일별 유입</h2>
-        <Sparkline data={series} />
-        <div className="adm-legend">
-          <span>{new Date(Date.now() - (DAYS - 1) * 864e5).toLocaleDateString("ko-KR")}</span>
-          <span>오늘</span>
+        <div className="adm-card-head">
+          <h2>일별 접속자</h2>
+          <nav className="adm-toggle">
+            <a href={`/admin?d=${DAYS}&c=line`} className={kind === "line" ? "on" : ""}>꺾은선</a>
+            <a href={`/admin?d=${DAYS}&c=bar`} className={kind === "bar" ? "on" : ""}>막대</a>
+          </nav>
         </div>
+        <Chart data={series} kind={kind} unit="명" />
+        <p className="adm-sub">
+          접속자 = 하루 동안의 방문 세션 수. 막대/점에 올리면 그날 페이지뷰가 같이 보입니다.
+        </p>
       </section>
 
       <div className="adm-grid2">

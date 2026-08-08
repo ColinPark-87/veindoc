@@ -266,3 +266,112 @@
   /* 아주 좁으면 회원가입은 팝오버 안 링크로만 (버튼 숨김) */
   .hlogin-btn.join{display:none}
 }
+
+/* ══════════════════════════════════════════════════════
+   통계 차트 (의존성 없는 SVG — Chart.tsx)
+   ══════════════════════════════════════════════════════ */
+.adm-chart{width:100%;height:auto;display:block;overflow:visible}
+.ch-grid{stroke:#eef1f5;stroke-width:1}
+.ch-ytick,.ch-xtick{fill:#8a949d;font-size:10px;font-weight:600}
+.ch-bar{transition:opacity .2s}
+.ch-bar:hover{opacity:.72}
+.adm-chart circle{cursor:default}
+
+.adm-toggle{display:inline-flex;gap:2px;background:#f1f4f7;border-radius:999px;padding:3px}
+.adm-toggle a{padding:5px 13px;border-radius:999px;font-size:11.5px;font-weight:700;color:var(--ink40)}
+.adm-toggle a.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(16,26,36,.14)}
+
+.adm-search{display:flex;gap:6px}
+.adm-search input{border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:12.5px;
+  font-family:inherit;min-width:200px}
+.adm-search button{background:var(--ink);color:#fff;border:0;border-radius:999px;padding:8px 16px;
+  font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.adm-search button:hover{background:var(--blue)}
+.adm-msg.warn{background:#fff7e8;color:#8a5a00;line-height:1.7;font-weight:500;margin-bottom:12px}
+.adm-msg.warn code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;font-size:11.5px}
+.adm-msg.warn b{font-weight:700}
+.adm-msg a{color:inherit;text-decoration:underline}
+
+/* ══════════════════════════════════════════════════════
+   진료 캘린더
+   ══════════════════════════════════════════════════════ */
+.cal-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cal-jump{display:flex;gap:5px}
+.cal-jump select{border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-size:12.5px;
+  font-family:inherit;background:#fff}
+.cal-jump button,.cal-refresh{background:var(--ink);color:#fff;border:0;border-radius:999px;
+  padding:8px 15px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.cal-jump button:hover,.cal-refresh:hover{background:var(--blue)}
+.cal-refresh{background:var(--blue)}
+.cal-synced{margin:-6px 0 12px}
+
+.cal-head{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:14px}
+.cal-head h2{margin:0;font-size:17px;min-width:150px;text-align:center}
+.cal-head a{font-size:17px;color:var(--ink40);padding:4px 12px;border-radius:9px}
+.cal-head a:hover{background:#f1f4f7;color:var(--ink)}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-wd{text-align:center;font-size:11.5px;font-weight:700;color:var(--ink40);padding:6px 0}
+.cal-wd.sat{color:#0070BC}
+.cal-wd.sun{color:#C8102E}
+
+.cal-day{min-height:84px;border:1px solid var(--line);border-radius:10px;padding:7px 8px;
+  display:flex;flex-direction:column;gap:3px;background:#fff;
+  transition:border-color .2s,background .2s}
+.cal-day:hover{border-color:var(--ink)}
+.cal-day b{font-size:13px;font-weight:700}
+.cal-day.sat b{color:#0070BC}
+.cal-day.sun b,.cal-day.holiday b{color:#C8102E}
+.cal-day.out{opacity:.36}
+.cal-day.today{background:#f2f8fd;border-color:rgba(0,112,188,.4)}
+.cal-day.sel{border-color:var(--ink);box-shadow:0 0 0 2px rgba(18,24,30,.12)}
+.cal-hname{font-style:normal;font-size:10px;font-weight:600;color:#C8102E;line-height:1.3}
+.cal-count{margin-top:auto;font-size:10.5px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:4px}
+.cal-dot{width:5px;height:5px;border-radius:50%;background:#F09000;display:inline-block}
+
+.cal-badge{margin-left:8px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px}
+.cal-badge.hol{background:#fdecee;color:#C8102E}
+
+.cal-alert{background:#fff7e8;border:1px solid #f3dfba;border-radius:11px;padding:12px 14px;margin-bottom:14px}
+.cal-alert b{font-size:12.5px;color:#8a5a00}
+.cal-alert ul{list-style:none;margin-top:7px;display:flex;flex-direction:column;gap:5px}
+.cal-alert li{display:flex;gap:10px;align-items:center;font-size:12.5px;flex-wrap:wrap}
+.cal-alert li span{font-weight:700;color:#8a5a00;min-width:48px}
+.cal-alert li em{font-style:normal;font-weight:600}
+.cal-alert li i{font-style:normal;font-size:11px;color:var(--ink40)}
+
+.cal-visits{list-style:none;display:flex;flex-direction:column;gap:10px}
+.cal-visits li{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;
+  flex-direction:column;gap:9px;background:#fff}
+.cal-visits li.in{border-color:rgba(4,163,63,.4);background:#f6fcf8}
+.cv-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cv-time{font-size:12.5px;font-weight:700;color:var(--blue);min-width:52px}
+.cv-name{font-size:14px;font-weight:700}
+.cv-tel{font-size:12.5px;color:var(--ink60)}
+.cv-check{margin-left:auto}
+.cv-check button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;
+  font-size:12px;font-weight:700;color:var(--ink60);cursor:pointer;font-family:inherit}
+.cv-check button:hover{border-color:var(--ink);color:var(--ink)}
+.cv-check button.on{background:rgba(4,163,63,.12);border-color:rgba(4,163,63,.45);color:#04A33F}
+
+.cv-form,.cv-sms{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.cv-form label{display:flex;flex-direction:column;gap:4px}
+.cv-form label.grow{flex:1;min-width:180px}
+.cv-form label span{font-size:11px;font-weight:600;color:var(--ink40)}
+.cv-form input,.cv-sms input{border:1px solid var(--line);border-radius:9px;padding:8px 11px;
+  font-size:12.5px;font-family:inherit;width:100%}
+.cv-sms input{flex:1;min-width:220px}
+.cv-form button,.cv-sms button{border:1px solid var(--line);background:#fff;border-radius:9px;
+  padding:8px 15px;font-size:12px;font-weight:600;color:var(--ink60);cursor:pointer;
+  font-family:inherit;white-space:nowrap}
+.cv-form button:hover,.cv-sms button:hover{border-color:var(--ink);color:var(--ink)}
+
+.cal-add{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+.cal-add summary{font-size:12.5px;font-weight:700;color:var(--blue);cursor:pointer;margin-bottom:10px}
+.pt-tel{font-size:14px;font-weight:600;color:var(--ink40);margin-left:12px}
+
+@media (max-width:900px){
+  .cal-day{min-height:62px;padding:5px 6px}
+  .cal-hname{display:none}
+  .adm-search input{min-width:130px}
+}
