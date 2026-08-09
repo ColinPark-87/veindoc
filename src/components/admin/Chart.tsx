@@ -38,7 +38,8 @@ export default function Chart({
   const cx = (i: number) => PAD.l + slot * (i + 0.5);
 
   const every = tickEvery ?? Math.max(1, Math.ceil(data.length / 8));
-  const grid = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(max * f));
+  // 값이 작으면 눈금이 같은 숫자로 겹친다(전부 0일 때 0,0,0,1,1) → 중복 제거
+  const grid = [...new Set([0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(max * f)))];
 
   const pts = data.map((d, i) => [cx(i), y(d.value)] as const);
   const line = pts.map(([x, yy], i) => `${i ? "L" : "M"} ${x.toFixed(1)} ${yy.toFixed(1)}`).join(" ");

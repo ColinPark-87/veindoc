@@ -390,3 +390,44 @@
 .mb-pending button.strong:hover{background:var(--ink);border-color:var(--ink)}
 .adm-table td .adm-tag{margin-left:6px}
 .adm-row-form select:disabled,.adm-check input:disabled{opacity:.5;cursor:not-allowed}
+
+/* ══════════════════════════════════════════════════════
+   모바일 — 직원이 폰으로 접수·내원체크를 하는 경우가 실제로 많다.
+   좌측 고정 사이드바(236px, 100svh sticky)는 폰에서 화면을 다 먹으므로
+   상단 가로 스크롤 바로 바꾼다.
+   ══════════════════════════════════════════════════════ */
+@media (max-width:820px){
+  .adm{grid-template-columns:1fr;min-height:auto}
+  .adm-side{position:static;height:auto;flex-direction:column}
+  .adm-brand{padding:13px 15px}
+  .adm-nav{flex-direction:row;overflow-x:auto;gap:6px;padding:9px 12px;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .adm-nav::-webkit-scrollbar{display:none}
+  .adm-nav a{white-space:nowrap;padding:8px 13px;font-size:13px;background:rgba(255,255,255,.06)}
+  .adm-me{flex-direction:row;align-items:center;gap:10px;padding:10px 15px;flex-wrap:wrap}
+  .adm-me b{font-size:12.5px}
+  .adm-me>span{font-size:10.5px}
+  .adm-me form{margin-left:auto}
+  .adm-me button{width:auto;padding:7px 13px;margin-top:0}
+
+  .adm-main{padding:15px 13px}
+  .adm-head{align-items:flex-start;flex-direction:column;gap:11px;margin-bottom:15px}
+  .adm-kpi{grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:9px}
+  .adm-kpi-item{padding:13px 14px}
+  .adm-card{padding:14px 13px;border-radius:12px}
+
+  /* 표는 줄이지 말고 가로로 굴린다 — 값을 잘라내면 오히려 못 쓴다 */
+  .adm-card:has(.adm-table){overflow-x:auto}
+  .adm-table{min-width:640px}
+
+  .adm-row-form,.cv-form,.cv-sms{flex-wrap:wrap}
+  .adm-row-form input,.adm-row-form select{min-width:0;flex:1}
+  .cv-form label.grow,.cv-sms input{min-width:100%}
+  .cv-check{margin-left:0}
+  .cv-check button,.cv-form button,.cv-sms button{min-height:40px}  /* 터치 타깃 */
+
+  .adm-search{width:100%}
+  .adm-search input{flex:1;min-width:0}
+  .cal-tools{width:100%;flex-wrap:wrap}
+  .cal-head h2{min-width:auto;font-size:15.5px}
+}

@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase-server";
 import { updateAppointment } from "./actions";
+import { linkPatient, toggleArrival } from "../care-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -14,20 +16,34 @@ const STATUS: Record<string, string> = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ s?: string }>;
+  searchParams: Promise<{ s?: string; q?: string }>;
 }) {
-  const { s } = await searchParams;
+  const { s, q = "" } = await searchParams;
   const supabase = await createClient();
 
-  let q = supabase
+  let query = supabase
     .from("appointments")
-    .select("id,name,phone,branch,preferred_at,symptoms,memo,status,source,created_at")
+    .select(
+      "id,name,phone,branch,preferred_at,symptoms,memo,status,source,created_at,patient_id,arrived_at,doctor,day_note"
+    )
     .order("created_at", { ascending: false })
-    .limit(100);
-  if (s && STATUS[s]) q = q.eq("status", s);
+    .limit(200);
+  if (s && STATUS[s]) query = query.eq("status", s);
 
-  const { data, error } = await q;
+  const term = q.trim();
+  if (term) {
+    const digits = term.replace(/[^0-9]/g, "");
+    query = digits
+      ? query.or(`name.ilike.%${term}%,phone.ilike.%${digits}%`)
+      : query.ilike("name", `%${term}%`);
+  }
+
+  const { data, error } = await query;
   const rows = data ?? [];
+  const unlinked = rows.filter((r) => !r.patient_id).length;
+
+  const link = (o: Record<string, string>) =>
+    `/admin/appointments?${new URLSearchParams({ s: s ?? "", q, ...o })}`;
 
   return (
     <>
@@ -36,17 +52,28 @@ export default async function Page({
           <span className="adm-eyebrow">직원</span>
           <h1>예약 관리</h1>
         </div>
-        <nav className="adm-filter">
-          <a href="/admin/appointments" className={!s ? "on" : ""}>전체</a>
-          {Object.entries(STATUS).map(([k, v]) => (
-            <a key={k} href={`/admin/appointments?s=${k}`} className={s === k ? "on" : ""}>
-              {v}
-            </a>
-          ))}
-        </nav>
+        <form className="adm-search" action="/admin/appointments">
+          <input type="hidden" name="s" value={s ?? ""} />
+          <input name="q" defaultValue={q} placeholder="이름 또는 전화번호" aria-label="예약 검색" />
+          <button type="submit">검색</button>
+        </form>
       </header>
 
+      <nav className="adm-filter">
+        <a href={link({ s: "" })} className={!s ? "on" : ""}>전체</a>
+        {Object.entries(STATUS).map(([k, v]) => (
+          <a key={k} href={link({ s: k })} className={s === k ? "on" : ""}>{v}</a>
+        ))}
+      </nav>
+
       {error && <p className="adm-msg err">불러오지 못했습니다: {error.message}</p>}
+
+      {unlinked > 0 && (
+        <p className="adm-msg warn">
+          환자로 연결되지 않은 예약이 {unlinked}건 있습니다. <b>환자 연결</b>을 누르면 이름·전화번호
+          기준으로 환자 기록에 이어 붙습니다(같은 사람이면 기존 기록에 누적).
+        </p>
+      )}
 
       <section className="adm-card">
         <table className="adm-table">
@@ -56,8 +83,8 @@ export default async function Page({
               <th>이름</th>
               <th>연락처</th>
               <th>희망일시</th>
-              <th>증상</th>
-              <th>상태</th>
+              <th>주치의</th>
+              <th>상태 / 내원</th>
               <th>메모 / 처리</th>
             </tr>
           </thead>
@@ -68,27 +95,39 @@ export default async function Page({
                   {new Date(r.created_at).toLocaleDateString("ko-KR")}
                   <i className="adm-sub">{r.source}</i>
                 </td>
-                <td>{r.name}</td>
+                <td>
+                  {r.patient_id ? (
+                    <Link href={`/admin/patients/${r.patient_id}`}>{r.name}</Link>
+                  ) : (
+                    <>
+                      {r.name}
+                      <form action={linkPatient} className="adm-row-form">
+                        <input type="hidden" name="id" value={r.id} />
+                        <input type="hidden" name="name" value={r.name} />
+                        <input type="hidden" name="phone" value={r.phone} />
+                        <input type="hidden" name="branch" value={r.branch ?? "대전"} />
+                        <input type="hidden" name="doctor" value={r.doctor ?? ""} />
+                        <button type="submit">환자 연결</button>
+                      </form>
+                    </>
+                  )}
+                </td>
                 <td className="nowrap">
                   <a href={`tel:${String(r.phone).replace(/-/g, "")}`}>{r.phone}</a>
                 </td>
                 <td className="nowrap">
                   {r.preferred_at ? new Date(r.preferred_at).toLocaleString("ko-KR") : "—"}
                 </td>
-                <td>
-                  {(r.symptoms ?? []).length ? (
-                    <span className="adm-chips">
-                      {(r.symptoms as string[]).slice(0, 2).map((x) => (
-                        <em key={x}>{x}</em>
-                      ))}
-                      {(r.symptoms as string[]).length > 2 && <em>+{(r.symptoms as string[]).length - 2}</em>}
-                    </span>
-                  ) : (
-                    "—"
-                  )}
-                </td>
+                <td>{r.doctor || "—"}</td>
                 <td>
                   <span className={`adm-status ${r.status}`}>{STATUS[r.status] ?? r.status}</span>
+                  <form action={toggleArrival} className="adm-row-form">
+                    <input type="hidden" name="id" value={r.id} />
+                    <input type="hidden" name="arrived" value={r.arrived_at ? "0" : "1"} />
+                    <button type="submit" className={r.arrived_at ? "on" : ""}>
+                      {r.arrived_at ? "내원함" : "내원 체크"}
+                    </button>
+                  </form>
                 </td>
                 <td>
                   <form action={updateAppointment} className="adm-row-form">
@@ -101,6 +140,7 @@ export default async function Page({
                     <input name="memo" defaultValue={r.memo ?? ""} placeholder="메모" />
                     <button type="submit">저장</button>
                   </form>
+                  {r.day_note && <i className="adm-sub">당일 기록: {r.day_note}</i>}
                 </td>
               </tr>
             ))}
@@ -108,7 +148,9 @@ export default async function Page({
               <tr>
                 <td colSpan={7}>
                   <p className="adm-empty">
-                    예약이 없습니다. 홈페이지 예약 폼이 연결되면 여기에 쌓입니다.
+                    {term || s
+                      ? "조건에 맞는 예약이 없습니다."
+                      : "예약이 없습니다. 진료 캘린더에서 날짜를 골라 추가할 수 있습니다."}
                   </p>
                 </td>
               </tr>

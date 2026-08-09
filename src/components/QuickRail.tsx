@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BRANCHES } from "@/lib/evidence";
 import { clinicStatus, type ClinicStatus } from "@/lib/clinic-status";
+import { requestMapSms } from "@/app/inquiry-actions";
 
 /**
  * 우측 퀵메뉴 — 원본 사이트 기능 그대로.
@@ -22,6 +23,7 @@ export default function QuickRail() {
   const [p2, setP2] = useState("");
   const [p3, setP3] = useState("");
   const [sent, setSent] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
   // 서버/클라이언트 시각 불일치(hydration) 방지 — 마운트 후 계산
   const [status, setStatus] = useState<ClinicStatus | null>(null);
 
@@ -32,12 +34,16 @@ export default function QuickRail() {
     return () => clearInterval(t);
   }, []);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!branch) return setSent("지점을 선택해 주세요.");
     if (p2.length < 3 || p3.length < 4) return setSent("전화번호를 확인해 주세요.");
-    // TODO: 실제 SMS 발송 연동 (Supabase inquiries + 문자 API)
-    setSent(`${branch} 약도를 010-${p2}-${p3} 로 전송 예약했습니다.`);
+
+    setSending(true);
+    // 접수 결과를 받고 나서 안내한다(예전에는 저장 없이 성공 문구만 띄웠다)
+    const res = await requestMapSms({ branch, phone: `010${p2}${p3}` });
+    setSending(false);
+    setSent(res.message);
   };
 
   return (
@@ -106,7 +112,9 @@ export default function QuickRail() {
               aria-label="전화번호 끝자리"
             />
           </div>
-          <button type="submit" data-track="sms">문자 전송하기</button>
+          <button type="submit" data-track="sms" disabled={sending}>
+            {sending ? "접수 중…" : "문자 전송하기"}
+          </button>
           {sent && <em className="qr-msg">{sent}</em>}
         </form>
 

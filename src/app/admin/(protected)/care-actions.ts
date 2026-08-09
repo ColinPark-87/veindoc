@@ -194,6 +194,97 @@ export async function savePatientMemo(form: FormData) {
   revalidateCare();
 }
 
+/** 이미 있는 예약을 환자에 붙인다 — 예약 관리에서 들어온 건은 patient_id 가 비어 있다 */
+export async function linkPatient(form: FormData) {
+  const me = await getMe();
+  if (!isStaff(me)) throw new Error("권한 없음");
+
+  const id = String(form.get("id"));
+  const name = String(form.get("name") ?? "").trim();
+  const phone = onlyDigits(form.get("phone"));
+  if (!name || !phone) throw new Error("이름과 전화번호가 있어야 환자로 연결할 수 있습니다");
+
+  const supabase = await createClient();
+  const { data: pid, error: pe } = await supabase.rpc("upsert_patient", {
+    p_name: name,
+    p_phone: phone,
+    p_branch: String(form.get("branch") ?? "대전"),
+    p_doctor: String(form.get("doctor") ?? ""),
+  });
+  if (pe) throw new Error(`환자 연결 실패: ${pe.message}`);
+
+  const { error } = await supabase
+    .from("appointments")
+    .update({ patient_id: pid })
+    .eq("id", id);
+  if (error) throw new Error(`예약 갱신 실패: ${error.message}`);
+
+  await logActivity("appointment.link", "appointments", id, { name });
+  revalidateCare();
+}
+
+/** 오늘 아직 안 온 예약자 전원에게 안내 문자 — 매일 아침 한 번 누르는 용도 */
+export async function sendTodayReminders(form: FormData) {
+  const me = await getMe();
+  if (!isStaff(me)) throw new Error("권한 없음");
+
+  const day = String(form.get("day") ?? "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) throw new Error("날짜가 올바르지 않습니다");
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("appointments")
+    .select("id,name,phone,branch,preferred_at,arrived_at,status")
+    .gte("preferred_at", `${day}T00:00:00`)
+    .lte("preferred_at", `${day}T23:59:59`)
+    .is("arrived_at", null)
+    .neq("status", "cancelled");
+  if (error) throw new Error(`대상 조회 실패: ${error.message}`);
+
+  const targets = (data ?? []).filter((a) => onlyDigits(a.phone).length >= 9);
+  if (targets.length === 0) return;
+
+  const rows = targets.map((a) => {
+    const t = a.preferred_at
+      ? new Date(a.preferred_at).toLocaleTimeString("ko-KR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "";
+    return {
+      to_phone: onlyDigits(a.phone),
+      body: `${a.name}님, 오늘 ${t} 진료 예약 안내드립니다. 삼성흉부외과 대전 042-471-3075`,
+      template: "당일리마인드",
+      branch: a.branch ?? "대전",
+      status: "queued",
+      sent_by: me!.id,
+    };
+  });
+
+  const { error: ie } = await supabase.from("sms_logs").insert(rows);
+  if (ie) throw new Error(`문자 적재 실패: ${ie.message}`);
+
+  await logActivity("sms.bulk", "sms_logs", undefined, { day, count: rows.length });
+  revalidateCare();
+}
+
+/** 상담·약도 요청 처리 표시 */
+export async function resolveInquiry(form: FormData) {
+  const me = await getMe();
+  if (!isStaff(me)) throw new Error("권한 없음");
+
+  const id = String(form.get("id"));
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("inquiries")
+    .update({ handled_at: new Date().toISOString(), handled_by: me!.id })
+    .eq("id", id);
+  if (error) throw new Error(`처리 실패: ${error.message}`);
+
+  await logActivity("inquiry.resolve", "inquiries", id);
+  revalidatePath("/admin/inquiries");
+}
+
 /** 환자 전화번호로 문자 — 실제 발송은 문자 API 연동 지점(sms/actions.ts 와 같은 큐) */
 export async function sendPatientSms(form: FormData) {
   const me = await getMe();

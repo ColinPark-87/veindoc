@@ -2,6 +2,8 @@ import { getMe, isAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import Chart, { type Point } from "@/components/admin/Chart";
+import { ymd } from "@/lib/holidays";
+import { sendTodayReminders, toggleArrival } from "./care-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -228,38 +230,166 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="adm-empty">{children}</p>;
 }
 
-/** 직원 계정으로 /admin 진입 시 보이는 요약 */
+/** 직원 계정으로 /admin 진입 시 보이는 화면 = 오늘 진료 보드.
+ *  직원이 하루에 가장 많이 하는 일(누가 오늘 오는가 · 왔는가 · 안 온 사람 챙기기)을
+ *  첫 화면에서 끝내도록 모아 둔다. */
 async function StaffHome() {
   const supabase = await createClient();
-  const [newAppt, todayAppt] = await Promise.all([
+  const today = ymd(new Date());
+  const weekLater = new Date(Date.now() + 7 * 864e5).toISOString();
+
+  const [todayRes, newRes, nextRes, openInq] = await Promise.all([
+    supabase
+      .from("appointments")
+      .select("id,name,phone,patient_id,preferred_at,status,arrived_at,doctor,day_note,branch")
+      .gte("preferred_at", `${today}T00:00:00`)
+      .lte("preferred_at", `${today}T23:59:59`)
+      .neq("status", "cancelled")
+      .order("preferred_at"),
     supabase.from("appointments").select("id", { count: "exact", head: true }).eq("status", "new"),
     supabase
       .from("appointments")
+      .select("id,name,phone,next_at,doctor")
+      .gt("next_at", new Date().toISOString())
+      .lte("next_at", weekLater)
+      .order("next_at")
+      .limit(20),
+    supabase
+      .from("inquiries")
       .select("id", { count: "exact", head: true })
-      .gte("preferred_at", new Date().toISOString().slice(0, 10)),
+      .is("handled_at", null),
   ]);
+
+  const list = todayRes.data ?? [];
+  const pending = list.filter((a) => !a.arrived_at);
+  const arrived = list.length - pending.length;
+  const upcoming = nextRes.data ?? [];
 
   return (
     <>
       <header className="adm-head">
         <div>
           <span className="adm-eyebrow">직원</span>
-          <h1>오늘 할 일</h1>
+          <h1>오늘 진료</h1>
         </div>
+        <span className="adm-period">
+          {new Date().toLocaleDateString("ko-KR", {
+            month: "long",
+            day: "numeric",
+            weekday: "long",
+          })}
+        </span>
       </header>
+
       <section className="adm-kpi">
-        <Kpi label="신규 예약" value={String(newAppt.count ?? 0)} tone={(newAppt.count ?? 0) > 0 ? "hot" : undefined} />
-        <Kpi label="오늘 이후 예약" value={String(todayAppt.count ?? 0)} />
+        <Kpi label="오늘 예약" value={String(list.length)} sub={`내원 ${arrived}명`} />
+        <Kpi
+          label="미내원"
+          value={String(pending.length)}
+          sub="아직 안 오신 분"
+          tone={pending.length > 0 ? "hot" : undefined}
+        />
+        <Kpi label="신규 접수" value={String(newRes.count ?? 0)} sub="확인 전 예약" />
+        <Kpi label="미처리 문의" value={String(openInq.count ?? 0)} sub="상담·약도 요청" />
       </section>
+
       <section className="adm-card">
-        <h2>바로가기</h2>
-        <div className="adm-quick">
-          <Link href="/admin/appointments">예약 관리</Link>
-          <Link href="/admin/sms">문자 발송</Link>
-          <Link href="/admin/posts">게시판</Link>
-          <Link href="/admin/reviews">후기 관리</Link>
+        <div className="adm-card-head">
+          <h2>오늘 오시는 분</h2>
+          <div className="cal-tools">
+            {pending.length > 0 && (
+              <form action={sendTodayReminders}>
+                <input type="hidden" name="day" value={today} />
+                <button type="submit" className="cal-refresh">
+                  미내원 {pending.length}명에게 안내 문자
+                </button>
+              </form>
+            )}
+            <Link href={`/admin/calendar?d=${today}`}>캘린더에서 보기 →</Link>
+          </div>
         </div>
+
+        {list.length === 0 ? (
+          <p className="adm-empty">오늘 예약이 없습니다.</p>
+        ) : (
+          <ul className="cal-visits">
+            {list.map((v) => (
+              <li key={v.id} className={v.arrived_at ? "in" : ""}>
+                <div className="cv-top">
+                  <span className="cv-time">
+                    {v.preferred_at
+                      ? new Date(v.preferred_at).toLocaleTimeString("ko-KR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "—"}
+                  </span>
+                  <b className="cv-name">
+                    {v.patient_id ? (
+                      <Link href={`/admin/patients/${v.patient_id}`}>{v.name}</Link>
+                    ) : (
+                      v.name
+                    )}
+                  </b>
+                  <a className="cv-tel" href={`tel:${v.phone}`}>{v.phone}</a>
+                  {v.doctor && <span className="adm-tag">{v.doctor}</span>}
+                  {v.day_note && <span className="adm-sub">{v.day_note}</span>}
+                  <form action={toggleArrival} className="cv-check">
+                    <input type="hidden" name="id" value={v.id} />
+                    <input type="hidden" name="arrived" value={v.arrived_at ? "0" : "1"} />
+                    <button type="submit" className={v.arrived_at ? "on" : ""}>
+                      {v.arrived_at ? "내원함" : "내원 체크"}
+                    </button>
+                  </form>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
+
+      <div className="adm-grid2">
+        <section className="adm-card">
+          <h2>다음 진료 예정 (7일)</h2>
+          {upcoming.length === 0 ? (
+            <p className="adm-empty">예정된 재진이 없습니다.</p>
+          ) : (
+            <table className="adm-table">
+              <thead>
+                <tr><th>일시</th><th>환자</th><th>연락처</th><th>주치의</th></tr>
+              </thead>
+              <tbody>
+                {upcoming.map((u) => (
+                  <tr key={u.id}>
+                    <td className="nowrap">
+                      {new Date(u.next_at as string).toLocaleString("ko-KR", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
+                    </td>
+                    <td>{u.name}</td>
+                    <td className="nowrap"><a href={`tel:${u.phone}`}>{u.phone}</a></td>
+                    <td>{u.doctor || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
+
+        <section className="adm-card">
+          <h2>바로가기</h2>
+          <div className="adm-quick">
+            <Link href="/admin/calendar">진료 캘린더</Link>
+            <Link href="/admin/patients">환자 관리</Link>
+            <Link href="/admin/appointments">예약 관리</Link>
+            <Link href="/admin/inquiries">상담 요청</Link>
+            <Link href="/admin/sms">문자 발송</Link>
+            <Link href="/admin/posts">게시판</Link>
+            <Link href="/admin/reviews">후기 관리</Link>
+          </div>
+        </section>
+      </div>
     </>
   );
 }
