@@ -416,13 +416,21 @@
   .adm-kpi-item{padding:13px 14px}
   .adm-card{padding:14px 13px;border-radius:12px}
 
-  /* 표는 줄이지 말고 가로로 굴린다 — 값을 잘라내면 오히려 못 쓴다 */
-  .adm-card:has(.adm-table){overflow-x:auto}
+  /* 표는 줄이지 말고 가로로 굴린다 — 값을 잘라내면 오히려 못 쓴다.
+     :has() 로 '표가 든 카드'만 고르면 실제로 안 걸리는 경우가 있어(측정으로 확인)
+     카드 전체에 건다. 그리드/플렉스 자식은 min-width:auto 때문에 트랙을 밀어내므로
+     0 으로 눌러 줘야 화면 전체가 가로로 밀리지 않는다. */
+  .adm{min-width:0}
+  .adm-main,.adm-side{min-width:0;max-width:100%}
+  .adm-card{overflow-x:auto}
   .adm-table{min-width:640px}
 
   .adm-row-form,.cv-form,.cv-sms{flex-wrap:wrap}
   .adm-row-form input,.adm-row-form select{min-width:0;flex:1}
   .cv-form label.grow,.cv-sms input{min-width:100%}
+  /* 체크박스 라벨이 좁은 칸에 들어가 글자 단위로 쪼개지던 것 */
+  .adm-check{flex:none;white-space:nowrap}
+  .adm-check span{white-space:nowrap}
   .cv-check{margin-left:0}
   .cv-check button,.cv-form button,.cv-sms button{min-height:40px}  /* 터치 타깃 */
 

@@ -67,6 +67,23 @@ const FIXTURES = {
     actions: 12, actions_7d: 5, last_at: iso(-2) }],
   edit_locks: [{ entity_id: "a1", actor: "u9", actor_name: "박간호",
     expires_at: new Date(Date.parse("2026-08-09T10:00:00+09:00") + 120000).toISOString() }],
+  surveys: [{ id: "s1", slug: "satisfaction-123", title: "치료 만족도 조사",
+    intro: "치료 경험을 알려 주세요.", status: "open", ask_contact: true,
+    thanks: "응답해 주셔서 감사합니다.", created_at: iso(-100) }],
+  survey_questions: [
+    { id: "q1", survey_id: "s1", ord: 1, kind: "single", label: "통증은 어느 정도였나요?",
+      options: ["없었다", "약간", "심했다"], required: true },
+    { id: "q3", survey_id: "s1", ord: 2, kind: "scale", label: "전반적인 만족도", options: [], required: true },
+    { id: "q4", survey_id: "s1", ord: 3, kind: "text", label: "하고 싶은 말", options: [], required: false },
+  ],
+  survey_responses: [
+    { id: "r1", answers: { q1: { choice: [0] }, q3: { scale: 5 }, q4: { text: "친절했습니다" } },
+      name: "김환자", phone: "01012345678", created_at: iso(-3) },
+    { id: "r2", answers: { q1: { choice: [1] }, q3: { scale: 4 } },
+      name: "", phone: "", created_at: iso(-1) },
+  ],
+  v_survey_counts: [{ id: "s1", slug: "satisfaction-123", title: "치료 만족도 조사",
+    status: "open", responses: 2, last_at: iso(-1) }],
   reviews: [], posts: [], clinic_settings: [],
 };
 
@@ -152,6 +169,11 @@ const PAGES = [
     ["알림", "내원 완료", "내가 오늘 한 일", "미처리 문의", "오늘 나간 문자"]],
   ["작업 로그", "logs/page.js", { searchParams: Promise.resolve({ d: "2026-08-09", who: "", a: "" }) },
     ["작업 로그", "log-days", "모든 직원", "모든 작업"]],
+  ["설문 목록", "surveys/page.js", {},
+    ["설문", "새 설문", "치료 만족도 조사", "응답 받는 중", "/survey/satisfaction-123"]],
+  ["설문 편집·통계", "surveys/[id]/page.js", { params: Promise.resolve({ id: "s1" }) },
+    ["문항", "응답 통계", "통증은 어느 정도였나요?", "5점 척도", "평균", "친절했습니다",
+     "문항 추가", "지금 공개 중입니다"]],
 ];
 
 (async () => {
