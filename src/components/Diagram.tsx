@@ -9,14 +9,89 @@
 
 const BLUE = "#0070BC";
 const GREEN = "#04A33F";
+const INK = "#1b242d";
 const RED = "#C8102E";   // 역류 = 문제 신호(사이트에서 공휴일·경고에 쓰는 색)
 
-export type DiagramKey = "valve" | "symptoms";
+export type DiagramKey = "valve" | "symptoms" | "steps" | "network";
 
 export default function Diagram({ name }: { name: DiagramKey }) {
   if (name === "valve") return <ValveDiagram />;
   if (name === "symptoms") return <SymptomDiagram />;
+  if (name === "steps") return <StepsDiagram />;
+  if (name === "network") return <NetworkDiagram />;
   return null;
+}
+
+/** 진료 절차 4단계 — 옆 목록과 같은 내용을 흐름으로 보여준다 */
+function StepsDiagram() {
+  const steps = ["접수 · 문진", "도플러 초음파", "진료 상담", "시술 · 경과"];
+  return (
+    <svg
+      className="dgm"
+      viewBox="0 0 260 440"
+      role="img"
+      aria-label="접수와 문진, 도플러 초음파, 진료 상담, 시술과 경과 관찰의 네 단계로 진행된다"
+    >
+      <path d="M46 44 V396" stroke={BLUE} strokeWidth="2" opacity=".28" fill="none" />
+      {steps.map((label, i) => {
+        const y = 52 + i * 112;
+        const last = i === steps.length - 1;
+        return (
+          <g key={label}>
+            <circle cx="46" cy={y} r="17" fill={last ? GREEN : BLUE} />
+            <text
+              x="46"
+              y={y + 5}
+              textAnchor="middle"
+              fill="#fff"
+              fontSize="15"
+              fontWeight="700"
+            >
+              {i + 1}
+            </text>
+            <text x="78" y={y + 5} fill={INK} fontSize="15" fontWeight="600">
+              {label}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/** 세 지점 — 실제 남북 순서(안양·평촌 → 천안 → 대전)를 지킨다 */
+function NetworkDiagram() {
+  const sites = [
+    { name: "안양 · 평촌", tel: "031-382-7588" },
+    { name: "천안", tel: "041-564-8877" },
+    { name: "대전", tel: "042-471-3075" },
+  ];
+  return (
+    <svg
+      className="dgm"
+      viewBox="0 0 300 440"
+      role="img"
+      aria-label="안양 평촌, 천안, 대전 세 곳에서 진료한다"
+    >
+      <path d="M54 60 V380" stroke={BLUE} strokeWidth="2" opacity=".28" fill="none" />
+      {sites.map((s, i) => {
+        const y = 76 + i * 144;
+        const main = s.name === "대전";
+        return (
+          <g key={s.name}>
+            <circle cx="54" cy={y} r={main ? 12 : 8} fill={main ? GREEN : BLUE} />
+            {main && <circle cx="54" cy={y} r="21" fill={GREEN} opacity=".16" />}
+            <text x="86" y={y - 2} fill={INK} fontSize="16" fontWeight="700">
+              {s.name}
+            </text>
+            <text x="86" y={y + 20} fill={INK} fontSize="13" opacity=".6">
+              {s.tel}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
 }
 
 /** 증상이 나타나는 부위 — 다리 윤곽에 표시점만 찍는다.

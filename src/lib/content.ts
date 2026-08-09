@@ -176,7 +176,7 @@ export const GUIDE: Slide[] = [
       "3. 진료 상담 — 치료 방법과 비용 안내",
       "4. 시술 및 경과 관찰 — 당일 귀가",
     ],
-    imgNote: "진료 절차 인포그래픽 (제작 예정)",
+    diagram: "steps",
   },
   {
     eb: "예약 · 상담",
@@ -214,6 +214,6 @@ export const LOCATION: Slide[] = [
       "안양/평촌 삼성흉부외과 — 031-382-7588",
       "천안 삼성흉부외과 — 041-564-8877",
     ],
-    imgNote: "네트워크 지도 (제작 예정)",
+    diagram: "network",
   },
 ];
