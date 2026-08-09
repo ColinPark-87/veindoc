@@ -123,6 +123,72 @@ export async function createVisit(form: FormData) {
   revalidateCare();
 }
 
+// ═══════════════════════════════════════════
+// 동시 수정 잠금
+// ═══════════════════════════════════════════
+
+/** 수정 시작 — 남이 잡고 있으면 그 사람 이름을 담아 거절한다 */
+export async function startEdit(form: FormData) {
+  const me = await getMe();
+  if (!isStaff(me)) throw new Error("권한 없음");
+
+  const id = String(form.get("id"));
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("acquire_lock", {
+    p_entity: "appointments",
+    p_id: id,
+    p_minutes: 3,
+  });
+  if (error) throw new Error(`수정 시작 실패: ${error.message}`);
+
+  const row = Array.isArray(data) ? data[0] : data;
+  if (row && row.ok === false) {
+    throw new Error(`${row.holder}님이 수정 중입니다. 잠시 후 다시 시도해 주세요.`);
+  }
+  revalidateCare();
+}
+
+export async function endEdit(form: FormData) {
+  const me = await getMe();
+  if (!isStaff(me)) throw new Error("권한 없음");
+
+  const supabase = await createClient();
+  await supabase.rpc("release_lock", { p_entity: "appointments", p_id: String(form.get("id")) });
+  revalidateCare();
+}
+
+/** 저장 직전 확인. 잠금이 만료된 틈을 대비해 updated_at 도 함께 본다. */
+async function assertWritable(id: string, expected?: string | null) {
+  const supabase = await createClient();
+
+  const { data: ok } = await supabase.rpc("lock_is_mine", {
+    p_entity: "appointments",
+    p_id: id,
+  });
+  if (ok === false) {
+    const { data: l } = await supabase
+      .from("edit_locks")
+      .select("actor_name")
+      .eq("entity", "appointments")
+      .eq("entity_id", id)
+      .maybeSingle();
+    throw new Error(`${l?.actor_name ?? "다른 직원"}님이 수정 중입니다. 저장하지 않았습니다.`);
+  }
+
+  if (expected) {
+    const { data: cur } = await supabase
+      .from("appointments")
+      .select("updated_at")
+      .eq("id", id)
+      .maybeSingle();
+    if (cur?.updated_at && cur.updated_at !== expected) {
+      throw new Error(
+        "이 사이에 다른 사람이 먼저 저장했습니다. 새로고침해서 최신 내용을 확인한 뒤 다시 입력해 주세요."
+      );
+    }
+  }
+}
+
 /** 내원 체크 — arrived_at 이 원천(트리거가 status 를 맞춘다) */
 export async function toggleArrival(form: FormData) {
   const me = await getMe();
@@ -130,6 +196,7 @@ export async function toggleArrival(form: FormData) {
 
   const id = String(form.get("id"));
   const arrived = String(form.get("arrived")) === "1";
+  await assertWritable(id);
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -153,6 +220,7 @@ export async function saveVisitNote(form: FormData) {
 
   const id = String(form.get("id"));
   const doctor = String(form.get("doctor") ?? "").trim();
+  await assertWritable(id, String(form.get("expected_at") ?? "") || null);
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -165,6 +233,9 @@ export async function saveVisitNote(form: FormData) {
     })
     .eq("id", id);
   if (error) throw new Error(`기록 저장 실패: ${error.message}`);
+
+  // 저장했으면 잠금은 놓는다 — 붙잡고 있을 이유가 없다
+  await supabase.rpc("release_lock", { p_entity: "appointments", p_id: id });
 
   // 환자의 '주로 보는 주치의'도 최근 값으로 따라가게 한다
   const pid = String(form.get("patient_id") ?? "");

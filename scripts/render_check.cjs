@@ -65,6 +65,8 @@ const FIXTURES = {
     symptoms: [], branch: "대전", kind: "map_sms", handled_at: null, created_at: iso(-1) }],
   v_staff_activity: [{ id: "u1", name: "관리자", email: "admin@x.kr", role: "admin",
     actions: 12, actions_7d: 5, last_at: iso(-2) }],
+  edit_locks: [{ entity_id: "a1", actor: "u9", actor_name: "박간호",
+    expires_at: new Date(Date.parse("2026-08-09T10:00:00+09:00") + 120000).toISOString() }],
   reviews: [], posts: [], clinic_settings: [],
 };
 
@@ -132,7 +134,8 @@ const PAGES = [
   ["대시보드(막대)", "page.js", { searchParams: Promise.resolve({ d: "90", c: "bar" }) },
     ["ch-bar", "ch-ytick"]],
   ["진료 캘린더", "calendar/page.js", { searchParams: Promise.resolve({ y: "2026", m: "8", d: "2026-08-09" }) },
-    ["cal-day sat", "cal-day sun", "광복절", "공휴일 새로고침", "당일 알림", "내원 체크", "당일 특이 기록", "주치의", "다음 진료"]],
+    ["cal-day sat", "cal-day sun", "광복절", "공휴일 새로고침", "당일 알림", "내원 체크", "당일 특이 기록", "주치의", "다음 진료",
+     "박간호님이 수정 중", "lock-bar", "수정 시작(3분 잠금)"]],
   ["환자 목록", "patients/page.js", { searchParams: Promise.resolve({ q: "" }) },
     ["동명이인", "김철수", "주치의"]],
   ["환자 상세", "patients/[id]/page.js", { params: Promise.resolve({ id: "p1" }) },
@@ -145,6 +148,10 @@ const PAGES = [
     ["권한 대기", "직원으로", "관리자로", "활성 관리자가 한 명뿐일 때"]],
   ["직원 실적", "staff-activity/page.js", { searchParams: Promise.resolve({ d: "30", c: "bar", who: "" }) },
     ["직원별 처리 건수", "일별 추이", "내원 체크", "ch-bar"]],
+  ["알림(직원)", "today/page.js", {},
+    ["알림", "내원 완료", "내가 오늘 한 일", "미처리 문의", "오늘 나간 문자"]],
+  ["작업 로그", "logs/page.js", { searchParams: Promise.resolve({ d: "2026-08-09", who: "", a: "" }) },
+    ["작업 로그", "log-days", "모든 직원", "모든 작업"]],
 ];
 
 (async () => {

@@ -9,11 +9,13 @@ export const dynamic = "force-dynamic";
 const ADMIN_NAV = [
   { href: "/admin", label: "대시보드" },
   { href: "/admin/staff-activity", label: "직원 실적" },
+  { href: "/admin/logs", label: "작업 로그" },
   { href: "/admin/members", label: "계정 관리" },
   { href: "/admin/settings", label: "진료시간" },
 ];
 
 const STAFF_NAV = [
+  { href: "/admin/today", label: "알림" },
   { href: "/admin/calendar", label: "진료 캘린더" },
   { href: "/admin/patients", label: "환자 관리" },
   { href: "/admin/appointments", label: "예약 관리" },

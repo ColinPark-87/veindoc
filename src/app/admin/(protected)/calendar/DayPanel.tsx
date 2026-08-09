@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { createVisit, saveVisitNote, sendPatientSms, toggleArrival } from "../care-actions";
+import {
+  createVisit,
+  endEdit,
+  saveVisitNote,
+  sendPatientSms,
+  startEdit,
+  toggleArrival,
+} from "../care-actions";
+import { FREE, remainText, type LockState } from "@/lib/locks";
 
 export type Visit = {
   id: string;
@@ -14,6 +22,7 @@ export type Visit = {
   next_at: string | null;
   memo: string | null;
   branch: string | null;
+  updated_at?: string | null;
 };
 
 const hhmm = (iso: string | null) =>
@@ -31,10 +40,12 @@ export default function DayPanel({
   date,
   holiday,
   visits,
+  locks,
 }: {
   date: string;
   holiday: string | null;
   visits: Visit[];
+  locks: Map<string, LockState>;
 }) {
   const pending = visits.filter((v) => !v.arrived_at);
   const label = new Date(`${date}T00:00:00`).toLocaleDateString("ko-KR", {
@@ -77,8 +88,16 @@ export default function DayPanel({
         <p className="adm-empty">이 날 예약이 없습니다.</p>
       ) : (
         <ul className="cal-visits">
-          {visits.map((v) => (
+          {visits.map((v) => {
+            const lock = locks.get(v.id) ?? FREE;
+            return (
             <li key={v.id} className={v.arrived_at ? "in" : ""}>
+              {lock.locked && (
+                <p className="lock-bar">
+                  <b>{lock.holder}님이 수정 중</b>
+                  <span>{remainText(lock.until)} · 저장하면 덮어쓰기 때문에 잠깁니다</span>
+                </p>
+              )}
               <div className="cv-top">
                 <span className="cv-time">{hhmm(v.preferred_at)}</span>
                 <b className="cv-name">
@@ -93,7 +112,7 @@ export default function DayPanel({
                 <form action={toggleArrival} className="cv-check">
                   <input type="hidden" name="id" value={v.id} />
                   <input type="hidden" name="arrived" value={v.arrived_at ? "0" : "1"} />
-                  <button type="submit" className={v.arrived_at ? "on" : ""}>
+                  <button type="submit" className={v.arrived_at ? "on" : ""} disabled={lock.locked}>
                     {v.arrived_at ? `내원 ${hhmm(v.arrived_at)}` : "내원 체크"}
                   </button>
                 </form>
@@ -102,20 +121,52 @@ export default function DayPanel({
               <form action={saveVisitNote} className="cv-form">
                 <input type="hidden" name="id" value={v.id} />
                 <input type="hidden" name="patient_id" value={v.patient_id ?? ""} />
+                <input type="hidden" name="expected_at" value={v.updated_at ?? ""} />
                 <label>
                   <span>주치의</span>
-                  <input name="doctor" defaultValue={v.doctor ?? ""} placeholder="진료 본 선생님" />
+                  <input
+                    name="doctor"
+                    defaultValue={v.doctor ?? ""}
+                    placeholder="진료 본 선생님"
+                    disabled={lock.locked}
+                  />
                 </label>
                 <label className="grow">
                   <span>당일 특이 기록</span>
-                  <input name="day_note" defaultValue={v.day_note ?? ""} placeholder="처치·경과·주의사항" />
+                  <input
+                    name="day_note"
+                    defaultValue={v.day_note ?? ""}
+                    placeholder="처치·경과·주의사항"
+                    disabled={lock.locked}
+                  />
                 </label>
                 <label>
                   <span>다음 진료</span>
-                  <input type="datetime-local" name="next_at" defaultValue={localInput(v.next_at)} />
+                  <input
+                    type="datetime-local"
+                    name="next_at"
+                    defaultValue={localInput(v.next_at)}
+                    disabled={lock.locked}
+                  />
                 </label>
-                <button type="submit">저장</button>
+                <button type="submit" disabled={lock.locked}>저장</button>
               </form>
+
+              <div className="lock-tools">
+                {lock.mine ? (
+                  <form action={endEdit}>
+                    <input type="hidden" name="id" value={v.id} />
+                    <button type="submit" className="on">내가 수정 중 — 수정 종료</button>
+                  </form>
+                ) : (
+                  <form action={startEdit}>
+                    <input type="hidden" name="id" value={v.id} />
+                    <button type="submit" disabled={lock.locked}>
+                      {lock.locked ? `${lock.holder}님이 수정 중` : "수정 시작(3분 잠금)"}
+                    </button>
+                  </form>
+                )}
+              </div>
 
               <form action={sendPatientSms} className="cv-sms">
                 <input type="hidden" name="phone" value={v.phone} />
@@ -129,7 +180,8 @@ export default function DayPanel({
                 <button type="submit">문자 보내기</button>
               </form>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
 

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase-server";
 import { getMe, isAdmin } from "@/lib/auth";
 import { dayTone, holidayYears, monthGrid, ymd } from "@/lib/holidays";
 import { refreshHolidays } from "../care-actions";
+import { readLocks } from "@/lib/locks";
 import DayPanel from "./DayPanel";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +32,7 @@ export default async function CalendarPage({
     supabase.from("holidays").select("day,name,is_holiday").gte("day", from).lte("day", to),
     supabase
       .from("appointments")
-      .select("id,name,phone,patient_id,preferred_at,status,arrived_at,doctor,day_note,next_at,memo,branch")
+      .select("id,name,phone,patient_id,preferred_at,status,arrived_at,doctor,day_note,next_at,memo,branch,updated_at")
       .gte("preferred_at", `${from}T00:00:00`)
       .lte("preferred_at", `${to}T23:59:59`)
       .neq("status", "cancelled")
@@ -55,6 +56,8 @@ export default async function CalendarPage({
 
   const selected = sp.d && /^\d{4}-\d{2}-\d{2}$/.test(sp.d) ? sp.d : ymd(today);
   const selectedVisits = byDay.get(selected) ?? [];
+  // 그날 보이는 건들의 잠금 상태를 한 번에 읽는다(행마다 조회하면 N+1)
+  const locks = await readLocks("appointments", selectedVisits.map((v) => v.id), me?.id ?? "");
   const last = sync.data;
   const missingSource = !hol.data?.length || last?.source === "fixed";
 
@@ -158,6 +161,7 @@ export default async function CalendarPage({
         date={selected}
         holiday={holidays.get(selected)?.name ?? null}
         visits={selectedVisits}
+        locks={locks}
       />
     </>
   );

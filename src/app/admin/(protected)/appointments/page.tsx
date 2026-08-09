@@ -24,7 +24,7 @@ export default async function Page({
   let query = supabase
     .from("appointments")
     .select(
-      "id,name,phone,branch,preferred_at,symptoms,memo,status,source,created_at,patient_id,arrived_at,doctor,day_note"
+      "id,name,phone,branch,preferred_at,symptoms,memo,status,source,created_at,patient_id,arrived_at,doctor,day_note,assignee,updated_at"
     )
     .order("created_at", { ascending: false })
     .limit(200);
@@ -38,8 +38,14 @@ export default async function Page({
       : query.ilike("name", `%${term}%`);
   }
 
-  const { data, error } = await query;
+  const [{ data, error }, staffRes] = await Promise.all([
+    query,
+    supabase.from("profiles").select("id,name,email").in("role", ["admin", "staff"]),
+  ]);
   const rows = data ?? [];
+  const staff = new Map(
+    (staffRes.data ?? []).map((s) => [s.id as string, (s.name as string) || (s.email as string)])
+  );
   const unlinked = rows.filter((r) => !r.patient_id).length;
 
   const link = (o: Record<string, string>) =>
@@ -85,6 +91,7 @@ export default async function Page({
               <th>희망일시</th>
               <th>주치의</th>
               <th>상태 / 내원</th>
+              <th>처리자</th>
               <th>메모 / 처리</th>
             </tr>
           </thead>
@@ -129,6 +136,12 @@ export default async function Page({
                     </button>
                   </form>
                 </td>
+                <td className="nowrap">
+                  {r.assignee ? staff.get(r.assignee) ?? "—" : "—"}
+                  {r.updated_at && (
+                    <i className="adm-sub">{new Date(r.updated_at).toLocaleString("ko-KR")}</i>
+                  )}
+                </td>
                 <td>
                   <form action={updateAppointment} className="adm-row-form">
                     <input type="hidden" name="id" value={r.id} />
@@ -146,7 +159,7 @@ export default async function Page({
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={7}>
+                <td colSpan={8}>
                   <p className="adm-empty">
                     {term || s
                       ? "조건에 맞는 예약이 없습니다."
