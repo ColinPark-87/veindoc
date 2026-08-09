@@ -493,3 +493,27 @@
 /* 액션 결과 안내 — 실패를 에러 화면 대신 그 자리에서 알린다 */
 .adm-notice{margin-bottom:14px}
 .adm-msg.ok{background:rgba(4,163,63,.12);color:#04A33F}
+
+/* 설문 관리 */
+.sv-qlist{list-style:none;display:flex;flex-direction:column;gap:8px}
+.sv-qlist li{border:1px solid var(--line);border-radius:11px;padding:11px 13px;background:#fff}
+.sv-qhead{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.sv-qhead b{font-size:13.5px;font-weight:700}
+.sv-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+  border-radius:50%;background:var(--blue);color:#fff;font-size:11.5px;font-weight:700;flex:none}
+.sv-qtools{margin-left:auto;display:flex;gap:6px}
+.sv-qtools button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;
+  font-size:11px;font-weight:600;color:var(--ink40);cursor:pointer;font-family:inherit}
+.sv-qtools button:hover:not(:disabled){border-color:var(--ink);color:var(--ink)}
+.sv-qtools button:disabled{opacity:.4;cursor:not-allowed}
+.sv-qtools button.danger:hover{border-color:#C8102E;color:#C8102E}
+.cv-form textarea{border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:12.5px;
+  font-family:inherit;width:100%;resize:vertical}
+.sv-stat{padding:14px 0;border-bottom:1px solid #f0f3f6}
+.sv-stat:last-child{border-bottom:0}
+.sv-stat h3{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  margin-bottom:9px}
+.sv-stat h3 i{font-style:normal;margin-left:auto}
+.sv-texts{list-style:none;display:flex;flex-direction:column;gap:6px}
+.sv-texts li{background:#f7fafc;border-radius:9px;padding:9px 12px;font-size:12.5px;line-height:1.6}
+.adm-row-form button.danger{border-color:#e6b7bd;color:#C8102E}

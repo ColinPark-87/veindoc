@@ -10,6 +10,7 @@ export const NAV = [
   { key: "academic", href: "/academic", label: "학술활동" },
   { key: "guide", href: "/guide", label: "진료안내" },
   { key: "location", href: "/location", label: "오시는 길" },
+  { key: "survey", href: "/survey", label: "설문" },
 ] as const;
 
 export type NavKey = (typeof NAV)[number]["key"] | "home";

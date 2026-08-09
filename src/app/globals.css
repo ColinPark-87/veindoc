@@ -655,3 +655,58 @@ header{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(255,255,25
 
 /* 설명 도해(SVG) — 사진 자리와 같은 크기로 앉힌다 */
 .deck-media .dgm{width:100%;height:auto;max-height:100%;display:block}
+
+/* ══════════ 설문 (공개) ══════════ */
+.sv-page{padding-top:calc(var(--hh) + clamp(28px,5vh,64px));padding-bottom:clamp(40px,8vh,90px);
+  min-height:70svh;background:linear-gradient(180deg,#fff,var(--mist))}
+.sv-narrow{max-width:760px}
+.sv-title{font-size:clamp(24px,3.2vw,38px);font-weight:600;letter-spacing:-.04em;margin-top:8px}
+.sv-intro{margin-top:10px;color:var(--ink60);font-size:15px;line-height:1.7}
+.sv-empty{margin-top:24px;padding:28px;background:#fff;border:1px solid var(--line);border-radius:14px;
+  color:var(--ink60);font-size:14px;text-align:center}
+.sv-list{list-style:none;display:flex;flex-direction:column;gap:12px;margin-top:24px}
+.sv-list a{display:flex;flex-direction:column;gap:5px;background:#fff;border:1px solid var(--line);
+  border-radius:14px;padding:18px 20px;transition:border-color var(--dur) var(--ease)}
+.sv-list a:hover{border-color:var(--blue)}
+.sv-list b{font-size:17px;font-weight:700;letter-spacing:-.03em}
+.sv-list span{font-size:13.5px;color:var(--ink60)}
+.sv-list em{font-style:normal;font-size:12.5px;font-weight:600;color:var(--blue);margin-top:4px}
+
+.sv-form{margin-top:26px;display:flex;flex-direction:column;gap:16px}
+.sv-q{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.sv-q legend{display:flex;align-items:center;gap:9px;font-size:15.5px;font-weight:600;
+  letter-spacing:-.02em;padding:0;margin-bottom:12px;flex-wrap:wrap}
+.sv-q .sv-num{width:24px;height:24px;font-size:12px}
+.sv-req{font-style:normal;font-size:11px;font-weight:700;color:#C8102E;background:#fdecee;
+  padding:2px 8px;border-radius:999px}
+.sv-opts{display:flex;flex-direction:column;gap:8px}
+.sv-opts label,.sv-scale label{display:flex;align-items:center;gap:10px;padding:11px 13px;
+  border:1px solid var(--line);border-radius:10px;cursor:pointer;font-size:14.5px;
+  transition:border-color .2s,background .2s}
+.sv-opts label:hover,.sv-scale label:hover{border-color:var(--blue);background:#f7fbfe}
+.sv-opts input,.sv-scale input{width:18px;height:18px;accent-color:var(--blue);flex:none}
+.sv-scale{display:flex;gap:8px}
+.sv-scale label{flex:1;justify-content:center;flex-direction:column;gap:6px;padding:13px 6px}
+.sv-q textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  font-family:inherit;font-size:14.5px;resize:vertical}
+.sv-contact{display:flex;gap:10px;flex-wrap:wrap}
+.sv-contact input{flex:1;min-width:150px;border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;font-family:inherit;font-size:14.5px}
+.sv-note{margin-top:9px;font-size:12px;color:var(--ink40);line-height:1.6}
+.sv-err{background:#fdecee;color:#C8102E;padding:12px 15px;border-radius:10px;font-size:13.5px;
+  font-weight:600}
+.sv-form>button{align-self:flex-start;background:var(--ink);color:#fff;border:0;border-radius:999px;
+  padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;
+  transition:background var(--dur) var(--ease)}
+.sv-form>button:hover:not(:disabled){background:var(--blue)}
+.sv-form>button:disabled{opacity:.6;cursor:not-allowed}
+.sv-done{margin-top:30px;background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:40px 28px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
+.sv-done b{font-size:18px;font-weight:600;letter-spacing:-.03em}
+.sv-done a{font-size:13.5px;font-weight:600;color:var(--blue)}
+
+@media (max-width:640px){
+  .sv-scale{flex-wrap:wrap}
+  .sv-scale label{min-width:calc(20% - 7px)}
+  .sv-form>button{align-self:stretch;text-align:center}
+}

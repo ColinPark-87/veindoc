@@ -21,6 +21,7 @@ const STAFF_NAV = [
   { href: "/admin/patients", label: "환자 관리" },
   { href: "/admin/appointments", label: "예약 관리" },
   { href: "/admin/inquiries", label: "상담 요청" },
+  { href: "/admin/surveys", label: "설문" },
   { href: "/admin/sms", label: "문자 발송" },
   { href: "/admin/posts", label: "게시판" },
   { href: "/admin/reviews", label: "후기 관리" },
