@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getMe, isAdmin, isStaff } from "@/lib/auth";
 import { signOutAdmin } from "../actions";
+import { readNotice } from "@/lib/notice";
 
 export const metadata = { title: "관리자 | 삼성흉부외과 대전" };
 export const dynamic = "force-dynamic";
@@ -33,6 +34,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!isStaff(me)) redirect("/admin/login?e=denied");
 
   const nav = isAdmin(me) ? [...ADMIN_NAV, ...STAFF_NAV] : STAFF_NAV;
+  const notice = await readNotice();
 
   return (
     <div className="adm">
@@ -74,7 +76,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </aside>
 
-      <main className="adm-main">{children}</main>
+      <main className="adm-main">
+        {notice && (
+          <p className={`adm-msg ${notice.kind === "err" ? "err" : "ok"} adm-notice`} role="status">
+            {notice.text}
+          </p>
+        )}
+        {children}
+      </main>
     </div>
   );
 }

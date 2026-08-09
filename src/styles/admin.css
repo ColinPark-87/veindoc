@@ -489,3 +489,7 @@
 /* 주의 표식 — 이모지 대신 SVG(사이트 규칙) */
 .adm-alert-mark{width:15px;height:15px;vertical-align:-2px;margin-right:5px;color:#b56a00}
 .adm-msg.warn .adm-alert-mark{color:inherit}
+
+/* 액션 결과 안내 — 실패를 에러 화면 대신 그 자리에서 알린다 */
+.adm-notice{margin-bottom:14px}
+.adm-msg.ok{background:rgba(4,163,63,.12);color:#04A33F}
