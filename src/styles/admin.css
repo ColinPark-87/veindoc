@@ -375,3 +375,18 @@
   .cal-hname{display:none}
   .adm-search input{min-width:130px}
 }
+
+/* 권한 대기 — 가입 직후 계정에 한 번에 권한 주는 줄 */
+.mb-pending{list-style:none;display:flex;flex-direction:column;gap:8px}
+.mb-pending li{display:flex;align-items:center;gap:10px;padding:11px 13px;background:#f7fafc;
+  border:1px solid var(--line);border-radius:11px;flex-wrap:wrap}
+.mb-pending li>div{flex:1;min-width:180px}
+.mb-pending li b{display:block;font-size:13.5px;font-weight:700}
+.mb-pending button{border:1px solid var(--line);background:#fff;border-radius:999px;
+  padding:7px 14px;font-size:12px;font-weight:700;color:var(--ink60);cursor:pointer;
+  font-family:inherit;white-space:nowrap}
+.mb-pending button:hover{border-color:var(--ink);color:var(--ink)}
+.mb-pending button.strong{background:var(--blue);border-color:var(--blue);color:#fff}
+.mb-pending button.strong:hover{background:var(--ink);border-color:var(--ink)}
+.adm-table td .adm-tag{margin-left:6px}
+.adm-row-form select:disabled,.adm-check input:disabled{opacity:.5;cursor:not-allowed}

@@ -12,7 +12,7 @@ create table if not exists public.holidays (
   source     text not null default 'kasi',   -- kasi / manual
   synced_at  timestamptz not null default now()
 );
-create index if not exists holidays_year_idx on public.holidays ((extract(year from day)));
+-- 인덱스 없음: 10년치라야 수백 행이고 조회는 PK(day) 범위 스캔이라 이득이 없다
 
 -- 동기화 이력 — '언제 무엇을 몇 건 끌어왔나'를 남겨야 리프레시가 신뢰된다
 create table if not exists public.holiday_syncs (
@@ -56,7 +56,9 @@ alter table public.appointments
   add column if not exists doctor     text not null default '';  -- 진료 본 주치의
 
 create index if not exists appt_patient_idx on public.appointments(patient_id, preferred_at desc);
-create index if not exists appt_day_idx     on public.appointments((preferred_at::date));
+-- 날짜별 인덱스는 만들지 않는다: preferred_at 이 timestamptz 라 ::date 가 타임존 설정에
+-- 의존해(IMMUTABLE 아님) 인덱스 식으로 못 쓴다. 캘린더는 범위 조회라 0002 의
+-- appt_pref_idx(preferred_at) 로 충분하다.
 
 -- 내원 체크는 arrived_at 이 원천. status 는 화면 표시용이라 트리거로 맞춰준다.
 create or replace function public.sync_appt_arrival()
@@ -132,7 +134,8 @@ create or replace view public.v_today_appointments with (security_invoker = true
   select a.*, p.name as patient_name, p.phone as patient_phone
   from public.appointments a
   left join public.patients p on p.id = a.patient_id
-  where a.preferred_at::date = (now() at time zone 'Asia/Seoul')::date
+  -- 양쪽 모두 서울 기준으로 맞춘다(서버 타임존은 UTC라 ::date 만 쓰면 하루가 어긋난다)
+  where (a.preferred_at at time zone 'Asia/Seoul')::date = (now() at time zone 'Asia/Seoul')::date
     and a.status <> 'cancelled'
   order by a.preferred_at;
 
@@ -164,10 +167,37 @@ create policy "patients staff write" on public.patients
   for all using (public.is_staff()) with check (public.is_staff());
 
 -- ═══════════════════════════════════════════
--- 7. 0002 통계 뷰 보정
+-- 7. 0002 통계 뷰 — security_invoker 를 켠 채로 다시 만든다
 --    같은 이유(뷰가 RLS를 우회함)로 page_views/click_events/activity_logs 가
---    v_* 뷰를 통해 익명에게 열려 있었다. 정의는 그대로, 실행 권한만 호출자로 바꾼다.
+--    v_* 뷰를 통해 익명에게 열려 있었다. 정의는 0002 그대로, 실행 권한만 호출자로.
+--    ALTER 가 아니라 CREATE OR REPLACE 인 이유: 프로젝트에 따라 이 뷰가
+--    아예 없는 경우가 있어(0002 를 부분 실행) ALTER 는 거기서 멈춘다.
 -- ═══════════════════════════════════════════
-alter view public.v_daily_traffic  set (security_invoker = true);
-alter view public.v_click_summary  set (security_invoker = true);
-alter view public.v_staff_activity set (security_invoker = true);
+create or replace view public.v_daily_traffic with (security_invoker = true) as
+  select date_trunc('day', created_at)::date as day,
+         count(*) as views,
+         count(distinct session_id) as sessions
+  from public.page_views
+  group by 1 order by 1 desc;
+
+create or replace view public.v_click_summary with (security_invoker = true) as
+  select target,
+         count(*) as clicks,
+         count(distinct session_id) as sessions,
+         max(created_at) as last_at
+  from public.click_events
+  group by 1 order by 2 desc;
+
+create or replace view public.v_staff_activity with (security_invoker = true) as
+  select p.id, p.name, p.email, p.role,
+         count(a.id) as actions,
+         count(*) filter (where a.created_at > now() - interval '7 days') as actions_7d,
+         max(a.created_at) as last_at
+  from public.profiles p
+  left join public.activity_logs a on a.actor = p.id
+  where p.role in ('admin','staff')
+  group by p.id, p.name, p.email, p.role
+  order by actions desc;
+
+-- 마지막: PostgREST 스키마 캐시 갱신(새 테이블이 API에 바로 보이게)
+notify pgrst, 'reload schema';
