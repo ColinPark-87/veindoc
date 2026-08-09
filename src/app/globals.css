@@ -652,3 +652,6 @@ header{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(255,255,25
 }
 
 @import "../styles/admin.css";
+
+/* 설명 도해(SVG) — 사진 자리와 같은 크기로 앉힌다 */
+.deck-media .dgm{width:100%;height:auto;max-height:100%;display:block}

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
+import AlertMark from "@/components/admin/AlertMark";
 import { getMe, isAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { saveHours } from "./actions";
@@ -24,7 +25,7 @@ export default async function Page() {
       </header>
 
       <p className="adm-note">
-        ⚠️ 현재 사이트의 진료시간은 <b>가정값</b>입니다. 원본 홈페이지에 진료시간이 텍스트로 없어
+        <AlertMark /> 현재 사이트의 진료시간은 <b>가정값</b>입니다. 원본 홈페이지에 진료시간이 텍스트로 없어
         확인이 안 됐습니다. 실제 시간으로 저장하면 홈 하단의 “오늘 진료중” 판정도 정확해집니다.
       </p>
 

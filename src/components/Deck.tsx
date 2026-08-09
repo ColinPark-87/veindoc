@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Diagram, { type DiagramKey } from "@/components/Diagram";
 
 export type Slide = {
   /** 좌측 상단 라벨 */
@@ -15,6 +16,8 @@ export type Slide = {
   img?: string;
   /** 이미지 자리 안내 문구 — 추후 실제 이미지로 교체 */
   imgNote?: string;
+  /** 설명 도해(SVG). 사진이 아니라 구조 설명이 필요한 자리에 쓴다 */
+  diagram?: DiagramKey;
   /** 하단 지표 */
   stats?: { k: string; v: string }[];
 };
@@ -128,7 +131,9 @@ export default function Deck({
           </div>
 
           <div className="deck-media">
-            {s.img ? (
+            {s.diagram ? (
+              <Diagram name={s.diagram} />
+            ) : s.img ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={s.img} alt={s.eb} />
             ) : (

@@ -16,7 +16,7 @@ export const VEIN: Slide[] = [
       "오래 서 있는 직업, 임신, 가족력이 주요 위험 요인",
       "저절로 좋아지지 않고 서서히 진행합니다",
     ],
-    imgNote: "판막 역류 구조 일러스트 (제작 예정)",
+    diagram: "valve",
   },
   {
     eb: "증상",
@@ -29,7 +29,7 @@ export const VEIN: Slide[] = [
       "오래 서 있으면 통증이 심해진다",
       "자세 불균형으로 허리 통증이 함께 온다",
     ],
-    imgNote: "증상 부위 다이어그램 (제작 예정)",
+    diagram: "symptoms",
   },
   {
     eb: "합병증",

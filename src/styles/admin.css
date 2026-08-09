@@ -485,3 +485,7 @@
   .log-line li{grid-template-columns:48px 1fr;row-gap:2px}
   .lg-act,.lg-tgt{grid-column:2}
 }
+
+/* 주의 표식 — 이모지 대신 SVG(사이트 규칙) */
+.adm-alert-mark{width:15px;height:15px;vertical-align:-2px;margin-right:5px;color:#b56a00}
+.adm-msg.warn .adm-alert-mark{color:inherit}

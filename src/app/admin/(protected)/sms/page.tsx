@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
+import AlertMark from "@/components/admin/AlertMark";
 import { queueSms } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -61,7 +62,7 @@ export default async function Page() {
             </label>
             <button type="submit">발송 대기열에 넣기</button>
             <p className="adm-note">
-              ⚠️ 실제 발송 API는 아직 미연동입니다. 지금은 <b>대기열(queued)</b>로만 기록됩니다.
+              <AlertMark /> 실제 발송 API는 아직 미연동입니다. 지금은 <b>대기열(queued)</b>로만 기록됩니다.
               문자 사업자(알리고·NHN 등) 계정을 연결하면 실제 발송됩니다.
             </p>
           </form>
